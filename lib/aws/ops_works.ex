@@ -5,19 +5,19 @@ defmodule AWS.OpsWorks do
   @moduledoc """
   AWS OpsWorks
 
-  Welcome to the *AWS OpsWorks API Reference*. This guide provides
-  descriptions, syntax, and usage examples for AWS OpsWorks actions and data
-  types, including common parameters and error codes.
+  Welcome to the *AWS OpsWorks Stacks API Reference*. This guide provides
+  descriptions, syntax, and usage examples for AWS OpsWorks Stacks actions
+  and data types, including common parameters and error codes.
 
-  AWS OpsWorks is an application management service that provides an
+  AWS OpsWorks Stacks is an application management service that provides an
   integrated experience for overseeing the complete application lifecycle.
   For information about this product, go to the [AWS
   OpsWorks](http://aws.amazon.com/opsworks/) details page.
 
   **SDKs and CLI**
 
-  The most common way to use the AWS OpsWorks API is by using the AWS Command
-  Line Interface (CLI) or by using one of the AWS SDKs to implement
+  The most common way to use the AWS OpsWorks Stacks API is by using the AWS
+  Command Line Interface (CLI) or by using one of the AWS SDKs to implement
   applications in your preferred language. For more information, see:
 
   <ul> <li> [AWS
@@ -42,17 +42,26 @@ defmodule AWS.OpsWorks do
 
   </li> </ul> **Endpoints**
 
-  AWS OpsWorks supports the following endpoints, all HTTPS. You must connect
-  to one of the following endpoints. Stacks can only be accessed or managed
-  within the endpoint in which they are created.
+  AWS OpsWorks Stacks supports the following endpoints, all HTTPS. You must
+  connect to one of the following endpoints. Stacks can only be accessed or
+  managed within the endpoint in which they are created.
 
   <ul> <li> opsworks.us-east-1.amazonaws.com
+
+  </li> <li> opsworks.us-east-2.amazonaws.com
 
   </li> <li> opsworks.us-west-1.amazonaws.com
 
   </li> <li> opsworks.us-west-2.amazonaws.com
 
+  </li> <li> opsworks.ca-central-1.amazonaws.com (API only; not available in
+  the AWS console)
+
   </li> <li> opsworks.eu-west-1.amazonaws.com
+
+  </li> <li> opsworks.eu-west-2.amazonaws.com
+
+  </li> <li> opsworks.eu-west-3.amazonaws.com
 
   </li> <li> opsworks.eu-central-1.amazonaws.com
 
@@ -93,7 +102,7 @@ defmodule AWS.OpsWorks do
   layers.
 
   </li> <li> You cannot use this action with instances that were created with
-  AWS OpsWorks.
+  AWS OpsWorks Stacks.
 
   </li> </ul> **Required Permissions**: To use this action, an AWS Identity
   and Access Management (IAM) user must have a Manage permissions level for
@@ -140,9 +149,11 @@ defmodule AWS.OpsWorks do
   end
 
   @doc """
-  Attaches an Elastic Load Balancing load balancer to a specified layer. For
-  more information, see [Elastic Load
-  Balancing](http://docs.aws.amazon.com/opsworks/latest/userguide/load-balancer-elb.html).
+  Attaches an Elastic Load Balancing load balancer to a specified layer. AWS
+  OpsWorks Stacks does not support Application Load Balancer. You can only
+  use Classic Load Balancer with AWS OpsWorks Stacks. For more information,
+  see [Elastic Load
+  Balancing](http://docs.aws.amazon.com/opsworks/latest/userguide/layers-elb.html).
 
   <note> You must create the Elastic Load Balancing instance separately, by
   using the Elastic Load Balancing console, API, or CLI. For more
@@ -371,7 +382,8 @@ defmodule AWS.OpsWorks do
   @doc """
   Deregister a registered Amazon EC2 or on-premises instance. This action
   removes the instance from the stack and returns it to your control. This
-  action can not be used with instances that were created with AWS OpsWorks.
+  action can not be used with instances that were created with AWS OpsWorks
+  Stacks.
 
   **Required Permissions**: To use this action, an IAM user must have a
   Manage permissions level for the stack or an attached policy that
@@ -412,10 +424,10 @@ defmodule AWS.OpsWorks do
   end
 
   @doc """
-  Describes the available AWS OpsWorks agent versions. You must specify a
-  stack ID or a configuration manager. `DescribeAgentVersions` returns a list
-  of available agent versions for the specified stack or configuration
-  manager.
+  Describes the available AWS OpsWorks Stacks agent versions. You must
+  specify a stack ID or a configuration manager. `DescribeAgentVersions`
+  returns a list of available agent versions for the specified stack or
+  configuration manager.
   """
   def describe_agent_versions(client, input, options \\ []) do
     request(client, "DescribeAgentVersions", input, options)
@@ -424,7 +436,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Requests a description of a specified set of apps.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -439,7 +451,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Describes the results of specified commands.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -454,7 +466,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Requests a description of a specified set of deployments.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -469,7 +481,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Describes Amazon ECS clusters that are registered with a stack. If you
   specify only a stack ID, you can use the `MaxResults` and `NextToken`
-  parameters to paginate the response. However, AWS OpsWorks currently
+  parameters to paginate the response. However, AWS OpsWorks Stacks currently
   supports only one cluster per layer, so the result set has a maximum of one
   element.
 
@@ -478,6 +490,8 @@ defmodule AWS.OpsWorks do
   that explicitly grants permission. For more information on user
   permissions, see [Managing User
   Permissions](http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
+
+  This call accepts only one resource-identifying parameter.
   """
   def describe_ecs_clusters(client, input, options \\ []) do
     request(client, "DescribeEcsClusters", input, options)
@@ -487,7 +501,7 @@ defmodule AWS.OpsWorks do
   Describes [Elastic IP
   addresses](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html).
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -502,7 +516,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Describes a stack's Elastic Load Balancing instances.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -517,7 +531,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Requests a description of a set of instances.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -532,7 +546,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Requests a description of one or more layers in a specified stack.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -572,6 +586,13 @@ defmodule AWS.OpsWorks do
   end
 
   @doc """
+  Describes the operating systems that are supported by AWS OpsWorks Stacks.
+  """
+  def describe_operating_systems(client, input, options \\ []) do
+    request(client, "DescribeOperatingSystems", input, options)
+  end
+
+  @doc """
   Describes the permissions for a specified stack.
 
   **Required Permissions**: To use this action, an IAM user must have a
@@ -587,7 +608,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Describe an instance's RAID arrays.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -607,19 +628,23 @@ defmodule AWS.OpsWorks do
   that explicitly grants permissions. For more information on user
   permissions, see [Managing User
   Permissions](http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
+
+  This call accepts only one resource-identifying parameter.
   """
   def describe_rds_db_instances(client, input, options \\ []) do
     request(client, "DescribeRdsDbInstances", input, options)
   end
 
   @doc """
-  Describes AWS OpsWorks service errors.
+  Describes AWS OpsWorks Stacks service errors.
 
   **Required Permissions**: To use this action, an IAM user must have a Show,
   Deploy, or Manage permissions level for the stack, or an attached policy
   that explicitly grants permissions. For more information on user
   permissions, see [Managing User
   Permissions](http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
+
+  This call accepts only one resource-identifying parameter.
   """
   def describe_service_errors(client, input, options \\ []) do
     request(client, "DescribeServiceErrors", input, options)
@@ -695,7 +720,7 @@ defmodule AWS.OpsWorks do
   @doc """
   Describes an instance's Amazon EBS volumes.
 
-  <note> You must specify at least one of the parameters.
+  <note> This call accepts only one resource-identifying parameter.
 
   </note> **Required Permissions**: To use this action, an IAM user must have
   a Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -760,6 +785,13 @@ defmodule AWS.OpsWorks do
   end
 
   @doc """
+  Returns a list of tags that are applied to the specified stack or layer.
+  """
+  def list_tags(client, input, options \\ []) do
+    request(client, "ListTags", input, options)
+  end
+
+  @doc """
   Reboots a specified instance. For more information, see [Starting,
   Stopping, and Rebooting
   Instances](http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-starting.html).
@@ -808,20 +840,27 @@ defmodule AWS.OpsWorks do
   end
 
   @doc """
-  Registers instances with a specified stack that were created outside of AWS
-  OpsWorks.
+  Registers instances that were created outside of AWS OpsWorks Stacks with a
+  specified stack.
 
   <note> We do not recommend using this action to register instances. The
-  complete registration operation has two primary steps, installing the AWS
-  OpsWorks agent on the instance and registering the instance with the stack.
-  `RegisterInstance` handles only the second step. You should instead use the
-  AWS CLI `register` command, which performs the entire registration
-  operation. For more information, see [ Registering an Instance with an AWS
-  OpsWorks
+  complete registration operation includes two tasks: installing the AWS
+  OpsWorks Stacks agent on the instance, and registering the instance with
+  the stack. `RegisterInstance` handles only the second step. You should
+  instead use the AWS CLI `register` command, which performs the entire
+  registration operation. For more information, see [ Registering an Instance
+  with an AWS OpsWorks Stacks
   Stack](http://docs.aws.amazon.com/opsworks/latest/userguide/registered-instances-register.html).
 
-  </note> **Required Permissions**: To use this action, an IAM user must have
-  a Manage permissions level for the stack or an attached policy that
+  </note> Registered instances have the same requirements as instances that
+  are created by using the `CreateInstance` API. For example, registered
+  instances must be running a supported Linux-based operating system, and
+  they must have a supported instance type. For more information about
+  requirements for instances that you want to register, see [ Preparing the
+  Instance](http://docs.aws.amazon.com/opsworks/latest/userguide/registered-instances-register-registering-preparer.html).
+
+  **Required Permissions**: To use this action, an IAM user must have a
+  Manage permissions level for the stack or an attached policy that
   explicitly grants permissions. For more information on user permissions,
   see [Managing User
   Permissions](http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -968,10 +1007,20 @@ defmodule AWS.OpsWorks do
   end
 
   @doc """
+  Apply cost-allocation tags to a specified stack or layer in AWS OpsWorks
+  Stacks. For more information about how tagging works, see
+  [Tags](http://docs.aws.amazon.com/opsworks/latest/userguide/tagging.html)
+  in the AWS OpsWorks User Guide.
+  """
+  def tag_resource(client, input, options \\ []) do
+    request(client, "TagResource", input, options)
+  end
+
+  @doc """
   Unassigns a registered instance from all of it's layers. The instance
   remains in the stack as an unassigned instance and can be assigned to
   another layer, as needed. You cannot use this action with instances that
-  were created with AWS OpsWorks.
+  were created with AWS OpsWorks Stacks.
 
   **Required Permissions**: To use this action, an IAM user must have a
   Manage permissions level for the stack or an attached policy that
@@ -996,6 +1045,13 @@ defmodule AWS.OpsWorks do
   """
   def unassign_volume(client, input, options \\ []) do
     request(client, "UnassignVolume", input, options)
+  end
+
+  @doc """
+  Removes tags from a specified stack or layer.
+  """
+  def untag_resource(client, input, options \\ []) do
+    request(client, "UntagResource", input, options)
   end
 
   @doc """

@@ -3,14 +3,15 @@
 
 defmodule AWS.AutoScaling do
   @moduledoc """
-  With Application Auto Scaling, you can automatically scale your AWS
-  resources. The experience similar to that of [Auto
-  Scaling](https://aws.amazon.com/autoscaling/). You can use Application Auto
-  Scaling to accomplish the following tasks:
+  With Application Auto Scaling, you can configure automatic scaling for your
+  scalable AWS resources. You can use Application Auto Scaling to accomplish
+  the following tasks:
 
   <ul> <li> Define scaling policies to automatically scale your AWS resources
 
   </li> <li> Scale your resources in response to CloudWatch alarms
+
+  </li> <li> Schedule one-time or recurring scaling actions
 
   </li> <li> View the history of your scaling events
 
@@ -18,7 +19,7 @@ defmodule AWS.AutoScaling do
 
   <ul> <li> Amazon ECS services. For more information, see [Service Auto
   Scaling](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-auto-scaling.html)
-  in the *Amazon EC2 Container Service Developer Guide*.
+  in the *Amazon Elastic Container Service Developer Guide*.
 
   </li> <li> Amazon EC2 Spot fleets. For more information, see [Automatic
   Scaling for Spot
@@ -30,8 +31,32 @@ defmodule AWS.AutoScaling do
   EMR](http://docs.aws.amazon.com/ElasticMapReduce/latest/ManagementGuide/emr-automatic-scaling.html)
   in the *Amazon EMR Management Guide*.
 
-  </li> </ul> For a list of supported regions, see [AWS Regions and
-  Endpoints: Application Auto
+  </li> <li> AppStream 2.0 fleets. For more information, see [Fleet Auto
+  Scaling for Amazon AppStream
+  2.0](http://docs.aws.amazon.com/appstream2/latest/developerguide/autoscaling.html)
+  in the *Amazon AppStream 2.0 Developer Guide*.
+
+  </li> <li> Provisioned read and write capacity for Amazon DynamoDB tables
+  and global secondary indexes. For more information, see [Managing
+  Throughput Capacity Automatically with DynamoDB Auto
+  Scaling](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/AutoScaling.html)
+  in the *Amazon DynamoDB Developer Guide*.
+
+  </li> <li> Amazon Aurora Replicas. For more information, see [Using Amazon
+  Aurora Auto Scaling with Aurora
+  Replicas](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Aurora.Integrating.AutoScaling.html).
+
+  </li> <li> Amazon SageMaker endpoints. For more information, see
+  [Automatically Scaling Amazon SageMaker
+  Models](http://docs.aws.amazon.com/sagemaker/latest/dg/endpoint-auto-scaling.html).
+
+  </li> </ul> To configure automatic scaling for multiple resources across
+  multiple services, use AWS Auto Scaling to create a scaling plan for your
+  application. For more information, see [AWS Auto
+  Scaling](http://aws.amazon.com/autoscaling).
+
+  For a list of supported regions, see [AWS Regions and Endpoints:
+  Application Auto
   Scaling](http://docs.aws.amazon.com/general/latest/gr/rande.html#as-app_region)
   in the *AWS General Reference*.
   """
@@ -51,6 +76,13 @@ defmodule AWS.AutoScaling do
   end
 
   @doc """
+  Deletes the specified Application Auto Scaling scheduled action.
+  """
+  def delete_scheduled_action(client, input, options \\ []) do
+    request(client, "DeleteScheduledAction", input, options)
+  end
+
+  @doc """
   Deregisters a scalable target.
 
   Deregistering a scalable target deletes the scaling policies that are
@@ -64,8 +96,7 @@ defmodule AWS.AutoScaling do
   end
 
   @doc """
-  Provides descriptive information about the scalable targets in the
-  specified namespace.
+  Gets information about the scalable targets in the specified namespace.
 
   You can filter the results using the `ResourceIds` and `ScalableDimension`
   parameters.
@@ -95,8 +126,7 @@ defmodule AWS.AutoScaling do
   end
 
   @doc """
-  Provides descriptive information about the scaling policies in the
-  specified namespace.
+  Describes the scaling policies for the specified service namespace.
 
   You can filter the results using the `ResourceId`, `ScalableDimension`, and
   `PolicyNames` parameters.
@@ -110,13 +140,27 @@ defmodule AWS.AutoScaling do
   end
 
   @doc """
+  Describes the scheduled actions for the specified service namespace.
+
+  You can filter the results using the `ResourceId`, `ScalableDimension`, and
+  `ScheduledActionNames` parameters.
+
+  To create a scheduled action or update an existing one, see
+  `PutScheduledAction`. If you are no longer using a scheduled action, you
+  can delete it using `DeleteScheduledAction`.
+  """
+  def describe_scheduled_actions(client, input, options \\ []) do
+    request(client, "DescribeScheduledActions", input, options)
+  end
+
+  @doc """
   Creates or updates a policy for an Application Auto Scaling scalable
   target.
 
   Each scalable target is identified by a service namespace, resource ID, and
   scalable dimension. A scaling policy applies to the scalable target
   identified by those three attributes. You cannot create a scaling policy
-  without first registering a scalable target using `RegisterScalableTarget`.
+  until you register the scalable target using `RegisterScalableTarget`.
 
   To update a policy, specify its policy name and the parameters that you
   want to change. Any parameters that you don't specify are not changed by
@@ -131,16 +175,37 @@ defmodule AWS.AutoScaling do
   end
 
   @doc """
+  Creates or updates a scheduled action for an Application Auto Scaling
+  scalable target.
+
+  Each scalable target is identified by a service namespace, resource ID, and
+  scalable dimension. A scheduled action applies to the scalable target
+  identified by those three attributes. You cannot create a scheduled action
+  until you register the scalable target using `RegisterScalableTarget`.
+
+  To update an action, specify its name and the parameters that you want to
+  change. If you don't specify start and end times, the old values are
+  deleted. Any other parameters that you don't specify are not changed by
+  this update request.
+
+  You can view the scheduled actions using `DescribeScheduledActions`. If you
+  are no longer using a scheduled action, you can delete it using
+  `DeleteScheduledAction`.
+  """
+  def put_scheduled_action(client, input, options \\ []) do
+    request(client, "PutScheduledAction", input, options)
+  end
+
+  @doc """
   Registers or updates a scalable target. A scalable target is a resource
   that Application Auto Scaling can scale out or scale in. After you have
   registered a scalable target, you can use this operation to update the
-  minimum and maximum values for your scalable dimension.
+  minimum and maximum values for its scalable dimension.
 
   After you register a scalable target, you can create and apply scaling
   policies using `PutScalingPolicy`. You can view the scaling policies for a
-  service namespace using `DescribeScalableTargets`. If you are no longer
-  using a scalable target, you can deregister it using
-  `DeregisterScalableTarget`.
+  service namespace using `DescribeScalableTargets`. If you no longer need a
+  scalable target, you can deregister it using `DeregisterScalableTarget`.
   """
   def register_scalable_target(client, input, options \\ []) do
     request(client, "RegisterScalableTarget", input, options)

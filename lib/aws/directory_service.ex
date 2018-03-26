@@ -238,6 +238,13 @@ defmodule AWS.DirectoryService do
   end
 
   @doc """
+  Provides information about any domain controllers in your directory.
+  """
+  def describe_domain_controllers(client, input, options \\ []) do
+    request(client, "DescribeDomainControllers", input, options)
+  end
+
+  @doc """
   Obtains information about which SNS topics receive status messages from the
   specified directory.
 
@@ -394,6 +401,18 @@ defmodule AWS.DirectoryService do
   """
   def update_conditional_forwarder(client, input, options \\ []) do
     request(client, "UpdateConditionalForwarder", input, options)
+  end
+
+  @doc """
+  Adds or removes domain controllers to or from the directory. Based on the
+  difference between current value and new value (provided through this API
+  call), domain controllers will be added or removed. It may take up to 45
+  minutes for any new domain controllers to become fully active once the
+  requested number of domain controllers is updated. During this time, you
+  cannot make another update request.
+  """
+  def update_number_of_domain_controllers(client, input, options \\ []) do
+    request(client, "UpdateNumberOfDomainControllers", input, options)
   end
 
   @doc """

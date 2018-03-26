@@ -12,6 +12,10 @@ defmodule AWS.DMS do
   homogeneous migrations such as Oracle to Oracle, as well as heterogeneous
   migrations between different database platforms, such as Oracle to MySQL or
   SQL Server to PostgreSQL.
+
+  For more information about AWS DMS, see the AWS DMS user guide at [ What Is
+  AWS Database Migration Service?
+  ](http://docs.aws.amazon.com/dms/latest/userguide/Welcome.html)
   """
 
   @doc """
@@ -29,6 +33,31 @@ defmodule AWS.DMS do
   """
   def create_endpoint(client, input, options \\ []) do
     request(client, "CreateEndpoint", input, options)
+  end
+
+  @doc """
+  Creates an AWS DMS event notification subscription.
+
+  You can specify the type of source (`SourceType`) you want to be notified
+  of, provide a list of AWS DMS source IDs (`SourceIds`) that triggers the
+  events, and provide a list of event categories (`EventCategories`) for
+  events you want to be notified of. If you specify both the `SourceType` and
+  `SourceIds`, such as `SourceType = replication-instance` and
+  `SourceIdentifier = my-replinstance`, you will be notified of all the
+  replication instance events for the specified source. If you specify a
+  `SourceType` but don't specify a `SourceIdentifier`, you receive notice of
+  the events for that source type for all your AWS DMS sources. If you don't
+  specify either `SourceType` nor `SourceIdentifier`, you will be notified of
+  events generated from all AWS DMS sources belonging to your customer
+  account.
+
+  For more information about AWS DMS events, see [ Working with Events and
+  Notifications
+  ](http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Events.html) in the
+  AWS Database MIgration Service User Guide.
+  """
+  def create_event_subscription(client, input, options \\ []) do
+    request(client, "CreateEventSubscription", input, options)
   end
 
   @doc """
@@ -69,6 +98,13 @@ defmodule AWS.DMS do
   """
   def delete_endpoint(client, input, options \\ []) do
     request(client, "DeleteEndpoint", input, options)
+  end
+
+  @doc """
+  Deletes an AWS DMS event subscription.
+  """
+  def delete_event_subscription(client, input, options \\ []) do
+    request(client, "DeleteEventSubscription", input, options)
   end
 
   @doc """
@@ -141,6 +177,39 @@ defmodule AWS.DMS do
   end
 
   @doc """
+  Lists categories for all event source types, or, if specified, for a
+  specified source type. You can see a list of the event categories and
+  source types in [ Working with Events and Notifications
+  ](http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Events.html) in the
+  AWS Database Migration Service User Guide.
+  """
+  def describe_event_categories(client, input, options \\ []) do
+    request(client, "DescribeEventCategories", input, options)
+  end
+
+  @doc """
+  Lists all the event subscriptions for a customer account. The description
+  of a subscription includes `SubscriptionName`, `SNSTopicARN`, `CustomerID`,
+  `SourceType`, `SourceID`, `CreationTime`, and `Status`.
+
+  If you specify `SubscriptionName`, this action lists the description for
+  that subscription.
+  """
+  def describe_event_subscriptions(client, input, options \\ []) do
+    request(client, "DescribeEventSubscriptions", input, options)
+  end
+
+  @doc """
+  Lists events for a given source identifier and source type. You can also
+  specify a start and end time. For more information on AWS DMS events, see [
+  Working with Events and Notifications
+  ](http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Events.html).
+  """
+  def describe_events(client, input, options \\ []) do
+    request(client, "DescribeEvents", input, options)
+  end
+
+  @doc """
   Returns information about the replication instance types that can be
   created in the specified region.
   """
@@ -156,6 +225,13 @@ defmodule AWS.DMS do
   end
 
   @doc """
+  Returns information about the task logs for the specified task.
+  """
+  def describe_replication_instance_task_logs(client, input, options \\ []) do
+    request(client, "DescribeReplicationInstanceTaskLogs", input, options)
+  end
+
+  @doc """
   Returns information about replication instances for your account in the
   current region.
   """
@@ -168,6 +244,14 @@ defmodule AWS.DMS do
   """
   def describe_replication_subnet_groups(client, input, options \\ []) do
     request(client, "DescribeReplicationSubnetGroups", input, options)
+  end
+
+  @doc """
+  Returns the task assessment results from Amazon S3. This action always
+  returns the latest results.
+  """
+  def describe_replication_task_assessment_results(client, input, options \\ []) do
+    request(client, "DescribeReplicationTaskAssessmentResults", input, options)
   end
 
   @doc """
@@ -190,6 +274,10 @@ defmodule AWS.DMS do
   @doc """
   Returns table statistics on the database migration task, including table
   name, rows inserted, rows updated, and rows deleted.
+
+  Note that the "last updated" column the DMS console only indicates the time
+  that AWS DMS last updated the table statistics record for a table. It does
+  not indicate the time of the last update to the table.
   """
   def describe_table_statistics(client, input, options \\ []) do
     request(client, "DescribeTableStatistics", input, options)
@@ -217,6 +305,13 @@ defmodule AWS.DMS do
   end
 
   @doc """
+  Modifies an existing AWS DMS event notification subscription.
+  """
+  def modify_event_subscription(client, input, options \\ []) do
+    request(client, "ModifyEventSubscription", input, options)
+  end
+
+  @doc """
   Modifies the replication instance to apply new settings. You can change one
   or more parameters by specifying these parameters and the new values in the
   request.
@@ -241,9 +336,21 @@ defmodule AWS.DMS do
 
   You can't modify the task endpoints. The task must be stopped before you
   can modify it.
+
+  For more information about AWS DMS tasks, see the AWS DMS user guide at [
+  Working with Migration Tasks
+  ](http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Tasks.html)
   """
   def modify_replication_task(client, input, options \\ []) do
     request(client, "ModifyReplicationTask", input, options)
+  end
+
+  @doc """
+  Reboots a replication instance. Rebooting results in a momentary outage,
+  until the replication instance becomes available again.
+  """
+  def reboot_replication_instance(client, input, options \\ []) do
+    request(client, "RebootReplicationInstance", input, options)
   end
 
   @doc """
@@ -256,6 +363,13 @@ defmodule AWS.DMS do
   end
 
   @doc """
+  Reloads the target database table with the source data.
+  """
+  def reload_tables(client, input, options \\ []) do
+    request(client, "ReloadTables", input, options)
+  end
+
+  @doc """
   Removes metadata tags from a DMS resource.
   """
   def remove_tags_from_resource(client, input, options \\ []) do
@@ -264,9 +378,21 @@ defmodule AWS.DMS do
 
   @doc """
   Starts the replication task.
+
+  For more information about AWS DMS tasks, see the AWS DMS user guide at [
+  Working with Migration Tasks
+  ](http://docs.aws.amazon.com/dms/latest/userguide/CHAP_Tasks.html)
   """
   def start_replication_task(client, input, options \\ []) do
     request(client, "StartReplicationTask", input, options)
+  end
+
+  @doc """
+  Starts the replication task assessment for unsupported data types in the
+  source database.
+  """
+  def start_replication_task_assessment(client, input, options \\ []) do
+    request(client, "StartReplicationTaskAssessment", input, options)
   end
 
   @doc """

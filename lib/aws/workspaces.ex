@@ -5,12 +5,12 @@ defmodule AWS.Workspaces do
   @moduledoc """
   Amazon WorkSpaces Service
 
-  This reference provides detailed information about the Amazon WorkSpaces
-  operations.
+  Amazon WorkSpaces enables you to provision virtual, cloud-based Microsoft
+  Windows desktops for your users.
   """
 
   @doc """
-  Creates tags for a WorkSpace.
+  Creates tags for the specified WorkSpace.
   """
   def create_tags(client, input, options \\ []) do
     request(client, "CreateTags", input, options)
@@ -19,84 +19,63 @@ defmodule AWS.Workspaces do
   @doc """
   Creates one or more WorkSpaces.
 
-  <note> This operation is asynchronous and returns before the WorkSpaces are
+  This operation is asynchronous and returns before the WorkSpaces are
   created.
-
-  </note>
   """
   def create_workspaces(client, input, options \\ []) do
     request(client, "CreateWorkspaces", input, options)
   end
 
   @doc """
-  Deletes tags from a WorkSpace.
+  Deletes the specified tags from a WorkSpace.
   """
   def delete_tags(client, input, options \\ []) do
     request(client, "DeleteTags", input, options)
   end
 
   @doc """
-  Describes tags for a WorkSpace.
+  Describes the tags for the specified WorkSpace.
   """
   def describe_tags(client, input, options \\ []) do
     request(client, "DescribeTags", input, options)
   end
 
   @doc """
-  Obtains information about the WorkSpace bundles that are available to your
-  account in the specified region.
+  Describes the available WorkSpace bundles.
 
-  You can filter the results with either the `BundleIds` parameter, or the
-  `Owner` parameter, but not both.
-
-  This operation supports pagination with the use of the `NextToken` request
-  and response parameters. If more results are available, the `NextToken`
-  response member contains a token that you pass in the next call to this
-  operation to retrieve the next set of items.
+  You can filter the results using either bundle ID or owner, but not both.
   """
   def describe_workspace_bundles(client, input, options \\ []) do
     request(client, "DescribeWorkspaceBundles", input, options)
   end
 
   @doc """
-  Retrieves information about the AWS Directory Service directories in the
-  region that are registered with Amazon WorkSpaces and are available to your
-  account.
-
-  This operation supports pagination with the use of the `NextToken` request
-  and response parameters. If more results are available, the `NextToken`
-  response member contains a token that you pass in the next call to this
-  operation to retrieve the next set of items.
+  Describes the available AWS Directory Service directories that are
+  registered with Amazon WorkSpaces.
   """
   def describe_workspace_directories(client, input, options \\ []) do
     request(client, "DescribeWorkspaceDirectories", input, options)
   end
 
   @doc """
-  Obtains information about the specified WorkSpaces.
+  Describes the specified WorkSpaces.
 
-  Only one of the filter parameters, such as `BundleId`, `DirectoryId`, or
-  `WorkspaceIds`, can be specified at a time.
-
-  This operation supports pagination with the use of the `NextToken` request
-  and response parameters. If more results are available, the `NextToken`
-  response member contains a token that you pass in the next call to this
-  operation to retrieve the next set of items.
+  You can filter the results using bundle ID, directory ID, or owner, but you
+  can specify only one filter at a time.
   """
   def describe_workspaces(client, input, options \\ []) do
     request(client, "DescribeWorkspaces", input, options)
   end
 
   @doc """
-  Describes the connection status of a specified WorkSpace.
+  Describes the connection status of the specified WorkSpaces.
   """
   def describe_workspaces_connection_status(client, input, options \\ []) do
     request(client, "DescribeWorkspacesConnectionStatus", input, options)
   end
 
   @doc """
-  Modifies the WorkSpace properties, including the RunningMode and AutoStop
-  time.
+  Modifies the specified WorkSpace properties.
   """
   def modify_workspace_properties(client, input, options \\ []) do
     request(client, "ModifyWorkspaceProperties", input, options)
@@ -105,13 +84,11 @@ defmodule AWS.Workspaces do
   @doc """
   Reboots the specified WorkSpaces.
 
-  To be able to reboot a WorkSpace, the WorkSpace must have a **State** of
-  `AVAILABLE`, `IMPAIRED`, or `INOPERABLE`.
+  You cannot reboot a WorkSpace unless its state is `AVAILABLE`, `IMPAIRED`,
+  or `INOPERABLE`.
 
-  <note> This operation is asynchronous and returns before the WorkSpaces
-  have rebooted.
-
-  </note>
+  This operation is asynchronous and returns before the WorkSpaces have
+  rebooted.
   """
   def reboot_workspaces(client, input, options \\ []) do
     request(client, "RebootWorkspaces", input, options)
@@ -120,43 +97,34 @@ defmodule AWS.Workspaces do
   @doc """
   Rebuilds the specified WorkSpaces.
 
+  You cannot rebuild a WorkSpace unless its state is `AVAILABLE` or `ERROR`.
+
   Rebuilding a WorkSpace is a potentially destructive action that can result
-  in the loss of data. Rebuilding a WorkSpace causes the following to occur:
+  in the loss of data. For more information, see [Rebuild a
+  WorkSpace](http://docs.aws.amazon.com/workspaces/latest/adminguide/reset-workspace.html).
 
-  <ul> <li> The system is restored to the image of the bundle that the
-  WorkSpace is created from. Any applications that have been installed, or
-  system settings that have been made since the WorkSpace was created will be
-  lost.
-
-  </li> <li> The data drive (D drive) is re-created from the last automatic
-  snapshot taken of the data drive. The current contents of the data drive
-  are overwritten. Automatic snapshots of the data drive are taken every 12
-  hours, so the snapshot can be as much as 12 hours old.
-
-  </li> </ul> To be able to rebuild a WorkSpace, the WorkSpace must have a
-  **State** of `AVAILABLE` or `ERROR`.
-
-  <note> This operation is asynchronous and returns before the WorkSpaces
-  have been completely rebuilt.
-
-  </note>
+  This operation is asynchronous and returns before the WorkSpaces have been
+  completely rebuilt.
   """
   def rebuild_workspaces(client, input, options \\ []) do
     request(client, "RebuildWorkspaces", input, options)
   end
 
   @doc """
-  Starts the specified WorkSpaces. The API only works with WorkSpaces that
-  have RunningMode configured as AutoStop and the State set to “STOPPED.”
+  Starts the specified WorkSpaces.
+
+  You cannot start a WorkSpace unless it has a running mode of `AutoStop` and
+  a state of `STOPPED`.
   """
   def start_workspaces(client, input, options \\ []) do
     request(client, "StartWorkspaces", input, options)
   end
 
   @doc """
-  Stops the specified WorkSpaces. The API only works with WorkSpaces that
-  have RunningMode configured as AutoStop and the State set to AVAILABLE,
-  IMPAIRED, UNHEALTHY, or ERROR.
+  Stops the specified WorkSpaces.
+
+  You cannot stop a WorkSpace unless it has a running mode of `AutoStop` and
+  a state of `AVAILABLE`, `IMPAIRED`, `UNHEALTHY`, or `ERROR`.
   """
   def stop_workspaces(client, input, options \\ []) do
     request(client, "StopWorkspaces", input, options)
@@ -166,16 +134,13 @@ defmodule AWS.Workspaces do
   Terminates the specified WorkSpaces.
 
   Terminating a WorkSpace is a permanent action and cannot be undone. The
-  user's data is not maintained and will be destroyed. If you need to archive
-  any user data, contact Amazon Web Services before terminating the
-  WorkSpace.
+  user's data is destroyed. If you need to archive any user data, contact
+  Amazon Web Services before terminating the WorkSpace.
 
   You can terminate a WorkSpace that is in any state except `SUSPENDED`.
 
-  <note> This operation is asynchronous and returns before the WorkSpaces
-  have been completely terminated.
-
-  </note>
+  This operation is asynchronous and returns before the WorkSpaces have been
+  completely terminated.
   """
   def terminate_workspaces(client, input, options \\ []) do
     request(client, "TerminateWorkspaces", input, options)

@@ -272,7 +272,11 @@ defmodule AWS.MechanicalTurk do
   the instant the GetFileUploadURL operation is called, and is valid for 60
   seconds. You can get a temporary file upload URL any time until the HIT is
   disposed. After the HIT is disposed, any uploaded files are deleted, and
-  cannot be retrieved.
+  cannot be retrieved. Pending Deprecation on December 12, 2017. The Answer
+  Specification structure will no longer support the `FileUploadAnswer`
+  element to be used for the QuestionForm data structure. Instead, we
+  recommend that Requesters who want to create HITs asking Workers to upload
+  files to use Amazon S3.
   """
   def get_file_upload_u_r_l(client, input, options \\ []) do
     request(client, "GetFileUploadURL", input, options)

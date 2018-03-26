@@ -4,32 +4,30 @@
 defmodule AWS.Logs do
   @moduledoc """
   You can use Amazon CloudWatch Logs to monitor, store, and access your log
-  files from EC2 instances, Amazon CloudTrail, or other sources. You can then
-  retrieve the associated log data from CloudWatch Logs using the Amazon
-  CloudWatch console, the CloudWatch Logs commands in the AWS CLI, the
-  CloudWatch Logs API, or the CloudWatch Logs SDK.
+  files from Amazon EC2 instances, AWS CloudTrail, or other sources. You can
+  then retrieve the associated log data from CloudWatch Logs using the
+  CloudWatch console, CloudWatch Logs commands in the AWS CLI, CloudWatch
+  Logs API, or CloudWatch Logs SDK.
 
   You can use CloudWatch Logs to:
 
-  <ul> <li> **Monitor Logs from Amazon EC2 Instances in Real-time**: You can
-  use CloudWatch Logs to monitor applications and systems using log data. For
+  <ul> <li> **Monitor logs from EC2 instances in real-time**: You can use
+  CloudWatch Logs to monitor applications and systems using log data. For
   example, CloudWatch Logs can track the number of errors that occur in your
   application logs and send you a notification whenever the rate of errors
-  exceeds a threshold you specify. CloudWatch Logs uses your log data for
-  monitoring; so, no code changes are required. For example, you can monitor
-  application logs for specific literal terms (such as
+  exceeds a threshold that you specify. CloudWatch Logs uses your log data
+  for monitoring; so, no code changes are required. For example, you can
+  monitor application logs for specific literal terms (such as
   "NullReferenceException") or count the number of occurrences of a literal
   term at a particular position in log data (such as "404" status codes in an
   Apache access log). When the term you are searching for is found,
-  CloudWatch Logs reports the data to a Amazon CloudWatch metric that you
-  specify.
+  CloudWatch Logs reports the data to a CloudWatch metric that you specify.
 
-  </li> <li> **Monitor Amazon CloudTrail Logged Events**: You can create
-  alarms in Amazon CloudWatch and receive notifications of particular API
-  activity as captured by CloudTrail and use the notification to perform
-  troubleshooting.
+  </li> <li> **Monitor AWS CloudTrail logged events**: You can create alarms
+  in CloudWatch and receive notifications of particular API activity as
+  captured by CloudTrail and use the notification to perform troubleshooting.
 
-  </li> <li> **Archive Log Data**: You can use CloudWatch Logs to store your
+  </li> <li> **Archive log data**: You can use CloudWatch Logs to store your
   log data in highly durable storage. You can change the log retention
   setting so that any log events older than this setting are automatically
   deleted. The CloudWatch Logs agent makes it easy to quickly send both
@@ -38,6 +36,27 @@ defmodule AWS.Logs do
 
   </li> </ul>
   """
+
+  @doc """
+  Associates the specified AWS Key Management Service (AWS KMS) customer
+  master key (CMK) with the specified log group.
+
+  Associating an AWS KMS CMK with a log group overrides any existing
+  associations between the log group and a CMK. After a CMK is associated
+  with a log group, all newly ingested data for the log group is encrypted
+  using the CMK. This association is stored as long as the data encrypted
+  with the CMK is still within Amazon CloudWatch Logs. This enables Amazon
+  CloudWatch Logs to decrypt this data whenever it is requested.
+
+  Note that it can take up to 5 minutes for this operation to take effect.
+
+  If you attempt to associate a CMK with a log group but the CMK does not
+  exist or the CMK is disabled, you will receive an
+  `InvalidParameterException` error.
+  """
+  def associate_kms_key(client, input, options \\ []) do
+    request(client, "AssociateKmsKey", input, options)
+  end
 
   @doc """
   Cancels the specified export task.
@@ -61,8 +80,8 @@ defmodule AWS.Logs do
 
   You can export logs from multiple log groups or multiple time ranges to the
   same S3 bucket. To separate out log data for each export task, you can
-  specify a prefix that will be used as the Amazon S3 key prefix for all
-  exported objects.
+  specify a prefix to be used as the Amazon S3 key prefix for all exported
+  objects.
   """
   def create_export_task(client, input, options \\ []) do
     request(client, "CreateExportTask", input, options)
@@ -83,7 +102,15 @@ defmodule AWS.Logs do
   </li> <li> Log group names consist of the following characters: a-z, A-Z,
   0-9, '_' (underscore), '-' (hyphen), '/' (forward slash), and '.' (period).
 
-  </li> </ul>
+  </li> </ul> If you associate a AWS Key Management Service (AWS KMS)
+  customer master key (CMK) with the log group, ingested data is encrypted
+  using the CMK. This association is stored as long as the data encrypted
+  with the CMK is still within Amazon CloudWatch Logs. This enables Amazon
+  CloudWatch Logs to decrypt this data whenever it is requested.
+
+  If you attempt to associate a CMK with the log group but the CMK does not
+  exist or the CMK is disabled, you will receive an
+  `InvalidParameterException` error.
   """
   def create_log_group(client, input, options \\ []) do
     request(client, "CreateLogGroup", input, options)
@@ -142,6 +169,14 @@ defmodule AWS.Logs do
   end
 
   @doc """
+  Deletes a resource policy from this account. This revokes the access of the
+  identities in that policy to put log events to this account.
+  """
+  def delete_resource_policy(client, input, options \\ []) do
+    request(client, "DeleteResourcePolicy", input, options)
+  end
+
+  @doc """
   Deletes the specified retention policy.
 
   Log events do not expire if they belong to log groups without a retention
@@ -196,11 +231,18 @@ defmodule AWS.Logs do
 
   @doc """
   Lists the specified metric filters. You can list all the metric filters or
-  filter the results by log name, prefix, metric name, and metric namespace.
+  filter the results by log name, prefix, metric name, or metric namespace.
   The results are ASCII-sorted by filter name.
   """
   def describe_metric_filters(client, input, options \\ []) do
     request(client, "DescribeMetricFilters", input, options)
+  end
+
+  @doc """
+  Lists the resource policies in this account.
+  """
+  def describe_resource_policies(client, input, options \\ []) do
+    request(client, "DescribeResourcePolicies", input, options)
   end
 
   @doc """
@@ -213,15 +255,30 @@ defmodule AWS.Logs do
   end
 
   @doc """
+  Disassociates the associated AWS Key Management Service (AWS KMS) customer
+  master key (CMK) from the specified log group.
+
+  After the AWS KMS CMK is disassociated from the log group, AWS CloudWatch
+  Logs stops encrypting newly ingested data for the log group. All previously
+  ingested data remains encrypted, and AWS CloudWatch Logs requires
+  permissions for the CMK whenever the encrypted data is requested.
+
+  Note that it can take up to 5 minutes for this operation to take effect.
+  """
+  def disassociate_kms_key(client, input, options \\ []) do
+    request(client, "DisassociateKmsKey", input, options)
+  end
+
+  @doc """
   Lists log events from the specified log group. You can list all the log
   events or filter the results using a filter pattern, a time range, and the
   name of the log stream.
 
-  By default, this operation returns as many log events as can fit in 1MB (up
-  to 10,000 log events), or all the events found within the time range that
-  you specify. If the results include a token, then there are more log events
-  available, and you can get additional results by specifying the token in a
-  subsequent call.
+  By default, this operation returns as many log events as can fit in 1 MB
+  (up to 10,000 log events), or all the events found within the time range
+  that you specify. If the results include a token, then there are more log
+  events available, and you can get additional results by specifying the
+  token in a subsequent call.
   """
   def filter_log_events(client, input, options \\ []) do
     request(client, "FilterLogEvents", input, options)
@@ -232,8 +289,7 @@ defmodule AWS.Logs do
   events or filter using a time range.
 
   By default, this operation returns as many log events as can fit in a
-  response size of 1MB (up to 10,000 log events). If the results include
-  tokens, there are more log events available. You can get additional log
+  response size of 1MB (up to 10,000 log events). You can get additional log
   events by specifying one of the tokens in a subsequent call.
   """
   def get_log_events(client, input, options \\ []) do
@@ -242,8 +298,6 @@ defmodule AWS.Logs do
 
   @doc """
   Lists the tags for the specified log group.
-
-  To add tags, use `TagLogGroup`. To remove tags, use `UntagLogGroup`.
   """
   def list_tags_log_group(client, input, options \\ []) do
     request(client, "ListTagsLogGroup", input, options)
@@ -251,14 +305,14 @@ defmodule AWS.Logs do
 
   @doc """
   Creates or updates a destination. A destination encapsulates a physical
-  resource (such as a Kinesis stream) and enables you to subscribe to a
-  real-time stream of log events of a different account, ingested using
-  `PutLogEvents`. Currently, the only supported physical resource is a Amazon
+  resource (such as an Amazon Kinesis stream) and enables you to subscribe to
+  a real-time stream of log events for a different account, ingested using
+  `PutLogEvents`. Currently, the only supported physical resource is a
   Kinesis stream belonging to the same account as the destination.
 
-  A destination controls what is written to its Amazon Kinesis stream through
-  an access policy. By default, `PutDestination` does not set any access
-  policy with the destination, which means a cross-account user cannot call
+  Through an access policy, a destination controls what is written to its
+  Kinesis stream. By default, `PutDestination` does not set any access policy
+  with the destination, which means a cross-account user cannot call
   `PutSubscriptionFilter` against this destination. To enable this, the
   destination owner must call `PutDestinationPolicy` after `PutDestination`.
   """
@@ -283,7 +337,9 @@ defmodule AWS.Logs do
   You must include the sequence token obtained from the response of the
   previous call. An upload in a newly created log stream does not require a
   sequence token. You can also get the sequence token using
-  `DescribeLogStreams`.
+  `DescribeLogStreams`. If you call `PutLogEvents` twice within a narrow time
+  period using the same value for `sequenceToken`, both calls may be
+  successful, or one may be rejected.
 
   The batch of events must satisfy the following constraints:
 
@@ -298,8 +354,8 @@ defmodule AWS.Logs do
   the retention period of the log group.
 
   </li> <li> The log events in the batch must be in chronological ordered by
-  their timestamp (the time the event occurred, expressed as the number of
-  milliseconds since Jan 1, 1970 00:00:00 UTC).
+  their time stamp (the time the event occurred, expressed as the number of
+  milliseconds after Jan 1, 1970 00:00:00 UTC).
 
   </li> <li> The maximum number of log events in a batch is 10,000.
 
@@ -325,8 +381,17 @@ defmodule AWS.Logs do
   end
 
   @doc """
+  Creates or updates a resource policy allowing other AWS services to put log
+  events to this account, such as Amazon Route 53. An account can have up to
+  50 resource policies per region.
+  """
+  def put_resource_policy(client, input, options \\ []) do
+    request(client, "PutResourcePolicy", input, options)
+  end
+
+  @doc """
   Sets the retention of the specified log group. A retention policy allows
-  you to configure the number of days you want to retain log events in the
+  you to configure the number of days for which to retain log events in the
   specified log group.
   """
   def put_retention_policy(client, input, options \\ []) do
@@ -346,14 +411,16 @@ defmodule AWS.Logs do
   </li> <li> A logical destination that belongs to a different account, for
   cross-account delivery.
 
-  </li> <li> An Amazon Kinesis Firehose stream that belongs to the same
-  account as the subscription filter, for same-account delivery.
+  </li> <li> An Amazon Kinesis Firehose delivery stream that belongs to the
+  same account as the subscription filter, for same-account delivery.
 
   </li> <li> An AWS Lambda function that belongs to the same account as the
   subscription filter, for same-account delivery.
 
   </li> </ul> There can only be one subscription filter associated with a log
-  group.
+  group. If you are updating an existing filter, you must specify the correct
+  name in `filterName`. Otherwise, the call fails because you cannot
+  associate a second filter with a log group.
   """
   def put_subscription_filter(client, input, options \\ []) do
     request(client, "PutSubscriptionFilter", input, options)

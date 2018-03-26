@@ -5,7 +5,7 @@ defmodule AWS.Kinesis.Firehose do
   @moduledoc """
   Amazon Kinesis Firehose API Reference
 
-  Amazon Kinesis Firehose is a fully-managed service that delivers real-time
+  Amazon Kinesis Firehose is a fully managed service that delivers real-time
   streaming data to destinations such as Amazon Simple Storage Service
   (Amazon S3), Amazon Elasticsearch Service (Amazon ES), and Amazon Redshift.
   """
@@ -22,9 +22,16 @@ defmodule AWS.Kinesis.Firehose do
   exception. To check the state of a delivery stream, use
   `DescribeDeliveryStream`.
 
+  A Kinesis Firehose delivery stream can be configured to receive records
+  directly from providers using `PutRecord` or `PutRecordBatch`, or it can be
+  configured to use an existing Kinesis stream as its source. To specify a
+  Kinesis stream as input, set the `DeliveryStreamType` parameter to
+  `KinesisStreamAsSource`, and provide the Kinesis stream ARN and role ARN in
+  the `KinesisStreamSourceConfiguration` parameter.
+
   A delivery stream is configured with a single destination: Amazon S3,
-  Amazon Elasticsearch Service, or Amazon Redshift. You must specify only one
-  of the following destination configuration parameters:
+  Amazon ES, or Amazon Redshift. You must specify only one of the following
+  destination configuration parameters:
   **ExtendedS3DestinationConfiguration**, **S3DestinationConfiguration**,
   **ElasticsearchDestinationConfiguration**, or
   **RedshiftDestinationConfiguration**.
@@ -32,20 +39,21 @@ defmodule AWS.Kinesis.Firehose do
   When you specify **S3DestinationConfiguration**, you can also provide the
   following optional values: **BufferingHints**, **EncryptionConfiguration**,
   and **CompressionFormat**. By default, if no **BufferingHints** value is
-  provided, Firehose buffers data up to 5 MB or for 5 minutes, whichever
-  condition is satisfied first. Note that **BufferingHints** is a hint, so
-  there are some cases where the service cannot adhere to these conditions
-  strictly; for example, record boundaries are such that the size is a little
-  over or under the configured buffering size. By default, no encryption is
-  performed. We strongly recommend that you enable encryption to ensure
-  secure data storage in Amazon S3.
+  provided, Kinesis Firehose buffers data up to 5 MB or for 5 minutes,
+  whichever condition is satisfied first. Note that **BufferingHints** is a
+  hint, so there are some cases where the service cannot adhere to these
+  conditions strictly; for example, record boundaries are such that the size
+  is a little over or under the configured buffering size. By default, no
+  encryption is performed. We strongly recommend that you enable encryption
+  to ensure secure data storage in Amazon S3.
 
   A few notes about Amazon Redshift as a destination:
 
   <ul> <li> An Amazon Redshift destination requires an S3 bucket as
-  intermediate location, as Firehose first delivers data to S3 and then uses
-  `COPY` syntax to load data into an Amazon Redshift table. This is specified
-  in the **RedshiftDestinationConfiguration.S3Configuration** parameter.
+  intermediate location, as Kinesis Firehose first delivers data to S3 and
+  then uses `COPY` syntax to load data into an Amazon Redshift table. This is
+  specified in the **RedshiftDestinationConfiguration.S3Configuration**
+  parameter.
 
   </li> <li> The compression formats `SNAPPY` or `ZIP` cannot be specified in
   **RedshiftDestinationConfiguration.S3Configuration** because the Amazon
@@ -53,13 +61,14 @@ defmodule AWS.Kinesis.Firehose do
   these compression formats.
 
   </li> <li> We strongly recommend that you use the user name and password
-  you provide exclusively with Firehose, and that the permissions for the
-  account are restricted for Amazon Redshift `INSERT` permissions.
+  you provide exclusively with Kinesis Firehose, and that the permissions for
+  the account are restricted for Amazon Redshift `INSERT` permissions.
 
-  </li> </ul> Firehose assumes the IAM role that is configured as part of the
-  destination. The role should allow the Firehose principal to assume the
-  role, and the role should have permissions that allows the service to
-  deliver the data. For more information, see [Amazon S3 Bucket
+  </li> </ul> Kinesis Firehose assumes the IAM role that is configured as
+  part of the destination. The role should allow the Kinesis Firehose
+  principal to assume the role, and the role should have permissions that
+  allow the service to deliver the data. For more information, see [Amazon S3
+  Bucket
   Access](http://docs.aws.amazon.com/firehose/latest/dev/controlling-access.html#using-iam-s3)
   in the *Amazon Kinesis Firehose Developer Guide*.
   """
@@ -128,13 +137,13 @@ defmodule AWS.Kinesis.Firehose do
   You must specify the name of the delivery stream and the data record when
   using `PutRecord`. The data record consists of a data blob that can be up
   to 1,000 KB in size, and any kind of data, for example, a segment from a
-  log file, geographic location data, web site clickstream data, etc.
+  log file, geographic location data, website clickstream data, and so on.
 
-  Firehose buffers records before delivering them to the destination. To
-  disambiguate the data blobs at the destination, a common solution is to use
-  delimiters in the data, such as a newline (`\n`) or some other character
-  unique within the data. This allows the consumer application(s) to parse
-  individual data items when reading the data from the destination.
+  Kinesis Firehose buffers records before delivering them to the destination.
+  To disambiguate the data blobs at the destination, a common solution is to
+  use delimiters in the data, such as a newline (`\n`) or some other
+  character unique within the data. This allows the consumer application to
+  parse individual data items when reading the data from the destination.
 
   The `PutRecord` operation returns a **RecordId**, which is a unique string
   assigned to each record. Producer applications can use this ID for purposes
@@ -144,10 +153,10 @@ defmodule AWS.Kinesis.Firehose do
   off and retry. If the exception persists, it is possible that the
   throughput limits have been exceeded for the delivery stream.
 
-  Data records sent to Firehose are stored for 24 hours from the time they
-  are added to a delivery stream as it attempts to send the records to the
-  destination. If the destination is unreachable for more than 24 hours, the
-  data is no longer available.
+  Data records sent to Kinesis Firehose are stored for 24 hours from the time
+  they are added to a delivery stream as it attempts to send the records to
+  the destination. If the destination is unreachable for more than 24 hours,
+  the data is no longer available.
   """
   def put_record(client, input, options \\ []) do
     request(client, "PutRecord", input, options)
@@ -161,7 +170,7 @@ defmodule AWS.Kinesis.Firehose do
   producers.
 
   By default, each delivery stream can take in up to 2,000 transactions per
-  second, 5,000 records per second, or 5 MB per second. Note that if you use
+  second, 5,000 records per second, or 5 MB per second. If you use
   `PutRecord` and `PutRecordBatch`, the limits are an aggregate across these
   two operations for each delivery stream. For more information about limits,
   see [Amazon Kinesis Firehose
@@ -173,23 +182,24 @@ defmodule AWS.Kinesis.Firehose do
 
   You must specify the name of the delivery stream and the data record when
   using `PutRecord`. The data record consists of a data blob that can be up
-  to 1,000 KB in size, and any kind of data, for example, a segment from a
-  log file, geographic location data, web site clickstream data, and so on.
+  to 1,000 KB in size, and any kind of data. For example, it could be a
+  segment from a log file, geographic location data, web site clickstream
+  data, and so on.
 
-  Firehose buffers records before delivering them to the destination. To
-  disambiguate the data blobs at the destination, a common solution is to use
-  delimiters in the data, such as a newline (`\n`) or some other character
-  unique within the data. This allows the consumer application(s) to parse
-  individual data items when reading the data from the destination.
+  Kinesis Firehose buffers records before delivering them to the destination.
+  To disambiguate the data blobs at the destination, a common solution is to
+  use delimiters in the data, such as a newline (`\n`) or some other
+  character unique within the data. This allows the consumer application to
+  parse individual data items when reading the data from the destination.
 
   The `PutRecordBatch` response includes a count of failed records,
   **FailedPutCount**, and an array of responses, **RequestResponses**. Each
   entry in the **RequestResponses** array provides additional information
-  about the processed record, and directly correlates with a record in the
+  about the processed record. It directly correlates with a record in the
   request array using the same ordering, from the top to the bottom. The
   response array always includes the same number of records as the request
   array. **RequestResponses** includes both successfully and unsuccessfully
-  processed records. Firehose attempts to process all records in each
+  processed records. Kinesis Firehose attempts to process all records in each
   `PutRecordBatch` request. A single record failure does not stop the
   processing of subsequent records.
 
@@ -211,10 +221,10 @@ defmodule AWS.Kinesis.Firehose do
   retry. If the exception persists, it is possible that the throughput limits
   have been exceeded for the delivery stream.
 
-  Data records sent to Firehose are stored for 24 hours from the time they
-  are added to a delivery stream as it attempts to send the records to the
-  destination. If the destination is unreachable for more than 24 hours, the
-  data is no longer available.
+  Data records sent to Kinesis Firehose are stored for 24 hours from the time
+  they are added to a delivery stream as it attempts to send the records to
+  the destination. If the destination is unreachable for more than 24 hours,
+  the data is no longer available.
   """
   def put_record_batch(client, input, options \\ []) do
     request(client, "PutRecordBatch", input, options)
@@ -236,23 +246,24 @@ defmodule AWS.Kinesis.Firehose do
   For an Amazon ES destination, you can only update to another Amazon ES
   destination.
 
-  If the destination type is the same, Firehose merges the configuration
-  parameters specified with the destination configuration that already exists
-  on the delivery stream. If any of the parameters are not specified in the
-  call, the existing values are retained. For example, in the Amazon S3
-  destination, if `EncryptionConfiguration` is not specified then the
-  existing `EncryptionConfiguration` is maintained on the destination.
+  If the destination type is the same, Kinesis Firehose merges the
+  configuration parameters specified with the destination configuration that
+  already exists on the delivery stream. If any of the parameters are not
+  specified in the call, the existing values are retained. For example, in
+  the Amazon S3 destination, if `EncryptionConfiguration` is not specified,
+  then the existing `EncryptionConfiguration` is maintained on the
+  destination.
 
   If the destination type is not the same, for example, changing the
-  destination from Amazon S3 to Amazon Redshift, Firehose does not merge any
-  parameters. In this case, all parameters must be specified.
+  destination from Amazon S3 to Amazon Redshift, Kinesis Firehose does not
+  merge any parameters. In this case, all parameters must be specified.
 
-  Firehose uses **CurrentDeliveryStreamVersionId** to avoid race conditions
-  and conflicting merges. This is a required field, and the service updates
-  the configuration only if the existing configuration has a version ID that
-  matches. After the update is applied successfully, the version ID is
-  updated, and can be retrieved using `DescribeDeliveryStream`. You should
-  use the new version ID to set **CurrentDeliveryStreamVersionId** in the
+  Kinesis Firehose uses **CurrentDeliveryStreamVersionId** to avoid race
+  conditions and conflicting merges. This is a required field, and the
+  service updates the configuration only if the existing configuration has a
+  version ID that matches. After the update is applied successfully, the
+  version ID is updated, and can be retrieved using `DescribeDeliveryStream`.
+  Use the new version ID to set **CurrentDeliveryStreamVersionId** in the
   next call.
   """
   def update_destination(client, input, options \\ []) do

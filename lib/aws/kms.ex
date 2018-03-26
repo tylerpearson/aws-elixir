@@ -91,7 +91,8 @@ defmodule AWS.KMS do
   @doc """
   Cancels the deletion of a customer master key (CMK). When this operation is
   successful, the CMK is set to the `Disabled` state. To enable a CMK, use
-  `EnableKey`.
+  `EnableKey`. You cannot perform this operation on a CMK in a different AWS
+  account.
 
   For more information about scheduling and canceling deletion of a CMK, see
   [Deleting Customer Master
@@ -103,28 +104,44 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Creates a display name for a customer master key. An alias can be used to
-  identify a key and should be unique. The console enforces a one-to-one
-  mapping between the alias and a key. An alias name can contain only
-  alphanumeric characters, forward slashes (/), underscores (_), and dashes
-  (-). An alias must start with the word "alias" followed by a forward slash
-  (alias/). An alias that begins with "aws" after the forward slash
-  (alias/aws...) is reserved by Amazon Web Services (AWS).
+  Creates a display name for a customer master key (CMK). You can use an
+  alias to identify a CMK in selected operations, such as `Encrypt` and
+  `GenerateDataKey`.
 
-  The alias and the key it is mapped to must be in the same AWS account and
-  the same region.
+  Each CMK can have multiple aliases, but each alias points to only one CMK.
+  The alias name must be unique in the AWS account and region. To simplify
+  code that runs in multiple regions, use the same alias name, but point it
+  to a different CMK in each region.
 
-  To map an alias to a different key, call `UpdateAlias`.
+  Because an alias is not a property of a CMK, you can delete and change the
+  aliases of a CMK without affecting the CMK. Also, aliases do not appear in
+  the response from the `DescribeKey` operation. To get the aliases of all
+  CMKs, use the `ListAliases` operation.
+
+  An alias must start with the word `alias` followed by a forward slash
+  (`alias/`). The alias name can contain only alphanumeric characters,
+  forward slashes (/), underscores (_), and dashes (-). Alias names cannot
+  begin with `aws`; that alias name prefix is reserved by Amazon Web Services
+  (AWS).
+
+  The alias and the CMK it is mapped to must be in the same AWS account and
+  the same region. You cannot perform this operation on an alias in a
+  different AWS account.
+
+  To map an existing alias to a different CMK, call `UpdateAlias`.
   """
   def create_alias(client, input, options \\ []) do
     request(client, "CreateAlias", input, options)
   end
 
   @doc """
-  Adds a grant to a key to specify who can use the key and under what
-  conditions. Grants are alternate permission mechanisms to key policies.
+  Adds a grant to a customer master key (CMK). The grant specifies who can
+  use the CMK and under what conditions. When setting permissions, grants are
+  an alternative to key policies.
 
-  For more information about grants, see
+  To perform this operation on a CMK in a different AWS account, specify the
+  key ARN in the value of the KeyId parameter. For more information about
+  grants, see
   [Grants](http://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
   in the *AWS Key Management Service Developer Guide*.
   """
@@ -133,7 +150,7 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Creates a customer master key (CMK).
+  Creates a customer master key (CMK) in the caller's AWS account.
 
   You can use a CMK to encrypt small amounts of data (4 KiB or less)
   directly, but CMKs are more commonly used to encrypt data encryption keys
@@ -146,7 +163,8 @@ defmodule AWS.KMS do
   Concepts](http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html)
   in the *AWS Key Management Service Developer Guide*
 
-  </li> </ul>
+  </li> </ul> You cannot use this operation to create a CMK in a different
+  AWS account.
   """
   def create_key(client, input, options \\ []) do
     request(client, "CreateKey", input, options)
@@ -154,7 +172,7 @@ defmodule AWS.KMS do
 
   @doc """
   Decrypts ciphertext. Ciphertext is plaintext that has been previously
-  encrypted by using any of the following functions:
+  encrypted by using any of the following operations:
 
   <ul> <li> `GenerateDataKey`
 
@@ -176,19 +194,30 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Deletes the specified alias. To map an alias to a different key, call
-  `UpdateAlias`.
+  Deletes the specified alias. You cannot perform this operation on an alias
+  in a different AWS account.
+
+  Because an alias is not a property of a CMK, you can delete and change the
+  aliases of a CMK without affecting the CMK. Also, aliases do not appear in
+  the response from the `DescribeKey` operation. To get the aliases of all
+  CMKs, use the `ListAliases` operation.
+
+  Each CMK can have multiple aliases. To change the alias of a CMK, use
+  `DeleteAlias` to delete the current alias and `CreateAlias` to create a new
+  alias. To associate an existing alias with a different customer master key
+  (CMK), call `UpdateAlias`.
   """
   def delete_alias(client, input, options \\ []) do
     request(client, "DeleteAlias", input, options)
   end
 
   @doc """
-  Deletes key material that you previously imported and makes the specified
-  customer master key (CMK) unusable. For more information about importing
-  key material into AWS KMS, see [Importing Key
+  Deletes key material that you previously imported. This operation makes the
+  specified customer master key (CMK) unusable. For more information about
+  importing key material into AWS KMS, see [Importing Key
   Material](http://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html)
-  in the *AWS Key Management Service Developer Guide*.
+  in the *AWS Key Management Service Developer Guide*. You cannot perform
+  this operation on a CMK in a different AWS account.
 
   When the specified CMK is in the `PendingDeletion` state, this operation
   does not change the CMK's state. Otherwise, it changes the CMK's state to
@@ -202,7 +231,11 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Provides detailed information about the specified customer master key.
+  Provides detailed information about the specified customer master key
+  (CMK).
+
+  To perform this operation on a CMK in a different AWS account, specify the
+  key ARN or alias ARN in the value of the KeyId parameter.
   """
   def describe_key(client, input, options \\ []) do
     request(client, "DescribeKey", input, options)
@@ -210,9 +243,11 @@ defmodule AWS.KMS do
 
   @doc """
   Sets the state of a customer master key (CMK) to disabled, thereby
-  preventing its use for cryptographic operations. For more information about
-  how key state affects the use of a CMK, see [How Key State Affects the Use
-  of a Customer Master
+  preventing its use for cryptographic operations. You cannot perform this
+  operation on a CMK in a different AWS account.
+
+  For more information about how key state affects the use of a CMK, see [How
+  Key State Affects the Use of a Customer Master
   Key](http://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
   in the *AWS Key Management Service Developer Guide*.
   """
@@ -221,49 +256,57 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Disables rotation of the specified key.
+  Disables automatic rotation of the key material for the specified customer
+  master key (CMK). You cannot perform this operation on a CMK in a different
+  AWS account.
   """
   def disable_key_rotation(client, input, options \\ []) do
     request(client, "DisableKeyRotation", input, options)
   end
 
   @doc """
-  Marks a key as enabled, thereby permitting its use.
+  Sets the state of a customer master key (CMK) to enabled, thereby
+  permitting its use for cryptographic operations. You cannot perform this
+  operation on a CMK in a different AWS account.
   """
   def enable_key(client, input, options \\ []) do
     request(client, "EnableKey", input, options)
   end
 
   @doc """
-  Enables rotation of the specified customer master key.
+  Enables automatic rotation of the key material for the specified customer
+  master key (CMK). You cannot perform this operation on a CMK in a different
+  AWS account.
   """
   def enable_key_rotation(client, input, options \\ []) do
     request(client, "EnableKeyRotation", input, options)
   end
 
   @doc """
-  Encrypts plaintext into ciphertext by using a customer master key. The
-  `Encrypt` function has two primary use cases:
+  Encrypts plaintext into ciphertext by using a customer master key (CMK).
+  The `Encrypt` operation has two primary use cases:
 
-  <ul> <li> You can encrypt up to 4 KB of arbitrary data such as an RSA key,
-  a database password, or other sensitive customer information.
+  <ul> <li> You can encrypt up to 4 kilobytes (4096 bytes) of arbitrary data
+  such as an RSA key, a database password, or other sensitive information.
 
-  </li> <li> If you are moving encrypted data from one region to another, you
-  can use this API to encrypt in the new region the plaintext data key that
+  </li> <li> To move encrypted data from one AWS region to another, you can
+  use this operation to encrypt in the new region the plaintext data key that
   was used to encrypt the data in the original region. This provides you with
   an encrypted copy of the data key that can be decrypted in the new region
   and used there to decrypt the encrypted data.
 
-  </li> </ul> Unless you are moving encrypted data from one region to
-  another, you don't use this function to encrypt a generated data key within
-  a region. You retrieve data keys already encrypted by calling the
-  `GenerateDataKey` or `GenerateDataKeyWithoutPlaintext` function. Data keys
-  don't need to be encrypted again by calling `Encrypt`.
+  </li> </ul> To perform this operation on a CMK in a different AWS account,
+  specify the key ARN or alias ARN in the value of the KeyId parameter.
 
-  If you want to encrypt data locally in your application, you can use the
-  `GenerateDataKey` function to return a plaintext data encryption key and a
-  copy of the key encrypted under the customer master key (CMK) of your
-  choosing.
+  Unless you are moving encrypted data from one region to another, you don't
+  use this operation to encrypt a generated data key within a region. To get
+  data keys that are already encrypted, call the `GenerateDataKey` or
+  `GenerateDataKeyWithoutPlaintext` operation. Data keys don't need to be
+  encrypted again by calling `Encrypt`.
+
+  To encrypt data locally in your application, use the `GenerateDataKey`
+  operation to return a plaintext data encryption key and a copy of the key
+  encrypted under the CMK of your choosing.
   """
   def encrypt(client, input, options \\ []) do
     request(client, "Encrypt", input, options)
@@ -277,7 +320,9 @@ defmodule AWS.KMS do
   data key. You must also specify the length of the data key using either the
   `KeySpec` or `NumberOfBytes` field. You must specify one field or the
   other, but not both. For common key lengths (128-bit and 256-bit symmetric
-  keys), we recommend that you use `KeySpec`.
+  keys), we recommend that you use `KeySpec`. To perform this operation on a
+  CMK in a different AWS account, specify the key ARN or alias ARN in the
+  value of the KeyId parameter.
 
   This operation returns a plaintext copy of the data key in the `Plaintext`
   field of the response, and an encrypted copy of the data key in the
@@ -287,8 +332,8 @@ defmodule AWS.KMS do
   We recommend that you use the following pattern to encrypt data locally in
   your application:
 
-  <ol> <li> Use this operation (`GenerateDataKey`) to retrieve a data
-  encryption key.
+  <ol> <li> Use this operation (`GenerateDataKey`) to get a data encryption
+  key.
 
   </li> <li> Use the plaintext data encryption key (returned in the
   `Plaintext` field of the response) to encrypt data locally, then erase the
@@ -306,8 +351,8 @@ defmodule AWS.KMS do
   the plaintext data key from memory.
 
   </li> </ol> To return only an encrypted copy of the data key, use
-  `GenerateDataKeyWithoutPlaintext`. To return an arbitrary unpredictable
-  byte string, use `GenerateRandom`.
+  `GenerateDataKeyWithoutPlaintext`. To return a random byte string that is
+  cryptographically secure, use `GenerateRandom`.
 
   If you use the optional `EncryptionContext` field, you must store at least
   enough information to be able to reconstruct the full encryption context
@@ -325,6 +370,9 @@ defmodule AWS.KMS do
   Returns a data encryption key encrypted under a customer master key (CMK).
   This operation is identical to `GenerateDataKey` but returns only the
   encrypted copy of the data key.
+
+  To perform this operation on a CMK in a different AWS account, specify the
+  key ARN or alias ARN in the value of the KeyId parameter.
 
   This operation is useful in a system that has multiple components with
   different degrees of trust. For example, consider a system that stores
@@ -344,22 +392,31 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Generates an unpredictable byte string.
+  Returns a random byte string that is cryptographically secure.
+
+  For more information about entropy and random number generation, see the
+  [AWS Key Management Service Cryptographic
+  Details](https://d0.awsstatic.com/whitepapers/KMS-Cryptographic-Details.pdf)
+  whitepaper.
   """
   def generate_random(client, input, options \\ []) do
     request(client, "GenerateRandom", input, options)
   end
 
   @doc """
-  Retrieves a policy attached to the specified key.
+  Gets a key policy attached to the specified customer master key (CMK). You
+  cannot perform this operation on a CMK in a different AWS account.
   """
   def get_key_policy(client, input, options \\ []) do
     request(client, "GetKeyPolicy", input, options)
   end
 
   @doc """
-  Retrieves a Boolean value that indicates whether key rotation is enabled
-  for the specified key.
+  Gets a Boolean value that indicates whether automatic rotation of the key
+  material is enabled for the specified customer master key (CMK).
+
+  To perform this operation on a CMK in a different AWS account, specify the
+  key ARN in the value of the KeyId parameter.
   """
   def get_key_rotation_status(client, input, options \\ []) do
     request(client, "GetKeyRotationStatus", input, options)
@@ -375,72 +432,105 @@ defmodule AWS.KMS do
   You must specify the key ID of the customer master key (CMK) into which you
   will import key material. This CMK's `Origin` must be `EXTERNAL`. You must
   also specify the wrapping algorithm and type of wrapping key (public key)
-  that you will use to encrypt the key material.
+  that you will use to encrypt the key material. You cannot perform this
+  operation on a CMK in a different AWS account.
 
   This operation returns a public key and an import token. Use the public key
   to encrypt the key material. Store the import token to send with a
   subsequent `ImportKeyMaterial` request. The public key and import token
   from the same response must be used together. These items are valid for 24
-  hours, after which they cannot be used for a subsequent `ImportKeyMaterial`
-  request. To retrieve new ones, send another `GetParametersForImport`
-  request.
+  hours. When they expire, they cannot be used for a subsequent
+  `ImportKeyMaterial` request. To get new ones, send another
+  `GetParametersForImport` request.
   """
   def get_parameters_for_import(client, input, options \\ []) do
     request(client, "GetParametersForImport", input, options)
   end
 
   @doc """
-  Imports key material into an AWS KMS customer master key (CMK) from your
-  existing key management infrastructure. For more information about
-  importing key material into AWS KMS, see [Importing Key
+  Imports key material into an existing AWS KMS customer master key (CMK)
+  that was created without key material. You cannot perform this operation on
+  a CMK in a different AWS account. For more information about creating CMKs
+  with no key material and then importing key material, see [Importing Key
   Material](http://docs.aws.amazon.com/kms/latest/developerguide/importing-keys.html)
   in the *AWS Key Management Service Developer Guide*.
 
-  You must specify the key ID of the CMK to import the key material into.
-  This CMK's `Origin` must be `EXTERNAL`. You must also send an import token
-  and the encrypted key material. Send the import token that you received in
-  the same `GetParametersForImport` response that contained the public key
-  that you used to encrypt the key material. You must also specify whether
-  the key material expires and if so, when. When the key material expires,
+  Before using this operation, call `GetParametersForImport`. Its response
+  includes a public key and an import token. Use the public key to encrypt
+  the key material. Then, submit the import token from the same
+  `GetParametersForImport` response.
+
+  When calling this operation, you must specify the following values:
+
+  <ul> <li> The key ID or key ARN of a CMK with no key material. Its `Origin`
+  must be `EXTERNAL`.
+
+  To create a CMK with no key material, call `CreateKey` and set the value of
+  its `Origin` parameter to `EXTERNAL`. To get the `Origin` of a CMK, call
+  `DescribeKey`.)
+
+  </li> <li> The encrypted key material. To get the public key to encrypt the
+  key material, call `GetParametersForImport`.
+
+  </li> <li> The import token that `GetParametersForImport` returned. This
+  token and the public key used to encrypt the key material must have come
+  from the same response.
+
+  </li> <li> Whether the key material expires and if so, when. If you set an
+  expiration date, you can change it only by reimporting the same key
+  material and specifying a new expiration date. If the key material expires,
   AWS KMS deletes the key material and the CMK becomes unusable. To use the
-  CMK again, you can reimport the same key material. If you set an expiration
-  date, you can change it only by reimporting the same key material and
-  specifying a new expiration date.
+  CMK again, you must reimport the same key material.
 
-  When this operation is successful, the specified CMK's key state changes to
-  `Enabled`, and you can use the CMK.
-
-  After you successfully import key material into a CMK, you can reimport the
-  same key material into that CMK, but you cannot import different key
-  material.
+  </li> </ul> When this operation is successful, the CMK's key state changes
+  from `PendingImport` to `Enabled`, and you can use the CMK. After you
+  successfully import key material into a CMK, you can reimport the same key
+  material into that CMK, but you cannot import different key material.
   """
   def import_key_material(client, input, options \\ []) do
     request(client, "ImportKeyMaterial", input, options)
   end
 
   @doc """
-  Lists all of the key aliases in the account.
+  Gets a list of all aliases in the caller's AWS account and region. You
+  cannot list aliases in other accounts. For more information about aliases,
+  see `CreateAlias`.
+
+  The response might include several aliases that do not have a `TargetKeyId`
+  field because they are not associated with a CMK. These are predefined
+  aliases that are reserved for CMKs managed by AWS services. If an alias is
+  not associated with a CMK, the alias does not count against the [alias
+  limit](http://docs.aws.amazon.com/kms/latest/developerguide/limits.html#aliases-limit)
+  for your account.
   """
   def list_aliases(client, input, options \\ []) do
     request(client, "ListAliases", input, options)
   end
 
   @doc """
-  List the grants for a specified key.
+  Gets a list of all grants for the specified customer master key (CMK).
+
+  To perform this operation on a CMK in a different AWS account, specify the
+  key ARN in the value of the KeyId parameter.
   """
   def list_grants(client, input, options \\ []) do
     request(client, "ListGrants", input, options)
   end
 
   @doc """
-  Retrieves a list of policies attached to a key.
+  Gets the names of the key policies that are attached to a customer master
+  key (CMK). This operation is designed to get policy names that you can use
+  in a `GetKeyPolicy` operation. However, the only valid policy name is
+  `default`. You cannot perform this operation on a CMK in a different AWS
+  account.
   """
   def list_key_policies(client, input, options \\ []) do
     request(client, "ListKeyPolicies", input, options)
   end
 
   @doc """
-  Lists the customer master keys.
+  Gets a list of all customer master keys (CMKs) in the caller's AWS account
+  and region.
   """
   def list_keys(client, input, options \\ []) do
     request(client, "ListKeys", input, options)
@@ -448,6 +538,8 @@ defmodule AWS.KMS do
 
   @doc """
   Returns a list of all tags for the specified customer master key (CMK).
+
+  You cannot perform this operation on a CMK in a different AWS account.
   """
   def list_resource_tags(client, input, options \\ []) do
     request(client, "ListResourceTags", input, options)
@@ -465,7 +557,8 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Attaches a key policy to the specified customer master key (CMK).
+  Attaches a key policy to the specified customer master key (CMK). You
+  cannot perform this operation on a CMK in a different AWS account.
 
   For more information about key policies, see [Key
   Policies](http://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html)
@@ -480,6 +573,8 @@ defmodule AWS.KMS do
   without exposing the plaintext of the data on the client side. The data is
   first decrypted and then reencrypted. You can also use this operation to
   change the encryption context of a ciphertext.
+
+  You can reencrypt data using CMKs in different AWS accounts.
 
   Unlike other operations, `ReEncrypt` is authorized twice, once as
   `ReEncryptFrom` on the source CMK and once as `ReEncryptTo` on the
@@ -518,8 +613,11 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Revokes a grant. You can revoke a grant to actively deny operations that
-  depend on it.
+  Revokes the specified grant for the specified customer master key (CMK).
+  You can revoke a grant to actively deny operations that depend on it.
+
+  To perform this operation on a CMK in a different AWS account, specify the
+  key ARN in the value of the KeyId parameter.
   """
   def revoke_grant(client, input, options \\ []) do
     request(client, "RevokeGrant", input, options)
@@ -534,6 +632,8 @@ defmodule AWS.KMS do
   the deletion of the CMK. After the waiting period ends, AWS KMS deletes the
   CMK and all AWS KMS data associated with it, including all aliases that
   refer to it.
+
+  You cannot perform this operation on a CMK in a different AWS account.
 
   <important> Deleting a CMK is a destructive and potentially dangerous
   operation. When a CMK is deleted, all data that was encrypted under the CMK
@@ -551,7 +651,8 @@ defmodule AWS.KMS do
 
   @doc """
   Adds or overwrites one or more tags for the specified customer master key
-  (CMK).
+  (CMK). You cannot perform this operation on a CMK in a different AWS
+  account.
 
   Each tag consists of a tag key and a tag value. Tag keys and tag values are
   both required, but tag values can be empty (null) strings.
@@ -561,6 +662,11 @@ defmodule AWS.KMS do
   `Test`. If you send a `TagResource` request for this CMK with a tag key of
   `Purpose` and a tag value of `Prod`, it does not create a second tag.
   Instead, the original tag is overwritten with the new tag value.
+
+  For information about the rules that apply to tag keys and tag values, see
+  [User-Defined Tag
+  Restrictions](http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html)
+  in the *AWS Billing and Cost Management User Guide*.
   """
   def tag_resource(client, input, options \\ []) do
     request(client, "TagResource", input, options)
@@ -568,7 +674,8 @@ defmodule AWS.KMS do
 
   @doc """
   Removes the specified tag or tags from the specified customer master key
-  (CMK).
+  (CMK). You cannot perform this operation on a CMK in a different AWS
+  account.
 
   To remove a tag, you specify the tag key for each tag to remove. You do not
   specify the tag value. To overwrite the tag value for an existing tag, use
@@ -579,27 +686,36 @@ defmodule AWS.KMS do
   end
 
   @doc """
-  Updates an alias to map it to a different key.
+  Associates an existing alias with a different customer master key (CMK).
+  Each CMK can have multiple aliases, but the aliases must be unique within
+  the account and region. You cannot perform this operation on an alias in a
+  different AWS account.
 
-  An alias is not a property of a key. Therefore, an alias can be mapped to
-  and unmapped from an existing key without changing the properties of the
-  key.
+  This operation works only on existing aliases. To change the alias of a CMK
+  to a new value, use `CreateAlias` to create a new alias and `DeleteAlias`
+  to delete the old alias.
+
+  Because an alias is not a property of a CMK, you can create, update, and
+  delete the aliases of a CMK without affecting the CMK. Also, aliases do not
+  appear in the response from the `DescribeKey` operation. To get the aliases
+  of all CMKs in the account, use the `ListAliases` operation.
 
   An alias name can contain only alphanumeric characters, forward slashes
   (/), underscores (_), and dashes (-). An alias must start with the word
-  "alias" followed by a forward slash (alias/). An alias that begins with
-  "aws" after the forward slash (alias/aws...) is reserved by Amazon Web
-  Services (AWS).
-
-  The alias and the key it is mapped to must be in the same AWS account and
-  the same region.
+  `alias` followed by a forward slash (`alias/`). The alias name can contain
+  only alphanumeric characters, forward slashes (/), underscores (_), and
+  dashes (-). Alias names cannot begin with `aws`; that alias name prefix is
+  reserved by Amazon Web Services (AWS).
   """
   def update_alias(client, input, options \\ []) do
     request(client, "UpdateAlias", input, options)
   end
 
   @doc """
-  Updates the description of a customer master key (CMK).
+  Updates the description of a customer master key (CMK). To see the
+  decription of a CMK, use `DescribeKey`.
+
+  You cannot perform this operation on a CMK in a different AWS account.
   """
   def update_key_description(client, input, options \\ []) do
     request(client, "UpdateKeyDescription", input, options)

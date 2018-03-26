@@ -35,6 +35,24 @@ defmodule AWS.Config do
   """
 
   @doc """
+  Returns the current configuration for one or more requested resources. The
+  operation also returns a list of resources that are not processed in the
+  current request. If there are no unprocessed resources, the operation
+  returns an empty unprocessedResourceKeys list.
+
+  <note> <ul> <li> The API does not return results for deleted resources.
+
+  </li> <li> The API does not return any tags for the requested resources.
+  This information is filtered out of the supplementaryConfiguration section
+  of the API response.
+
+  </li> </ul> </note>
+  """
+  def batch_get_resource_config(client, input, options \\ []) do
+    request(client, "BatchGetResourceConfig", input, options)
+  end
+
+  @doc """
   Deletes the specified AWS Config rule and all of its evaluation results.
 
   AWS Config sets the state of a rule to `DELETING` until the deletion is
@@ -281,15 +299,60 @@ defmodule AWS.Config do
   end
 
   @doc """
+  Returns the resource types, the number of each resource type, and the total
+  number of resources that AWS Config is recording in this region for your
+  AWS account.
+
+  <p class="title"> **Example**
+
+  <ol> <li> AWS Config is recording three resource types in the US East
+  (Ohio) Region for your account: 25 EC2 instances, 20 IAM users, and 15 S3
+  buckets.
+
+  </li> <li> You make a call to the `GetDiscoveredResourceCounts` action and
+  specify that you want all resource types.
+
+  </li> <li> AWS Config returns the following:
+
+  <ul> <li> The resource types (EC2 instances, IAM users, and S3 buckets)
+
+  </li> <li> The number of each resource type (25, 20, and 15)
+
+  </li> <li> The total number of all resources (60)
+
+  </li> </ul> </li> </ol> The response is paginated. By default, AWS Config
+  lists 100 `ResourceCount` objects on each page. You can customize this
+  number with the `limit` parameter. The response includes a `nextToken`
+  string. To get the next page of results, run the request again and specify
+  the string for the `nextToken` parameter.
+
+  <note> If you make a call to the `GetDiscoveredResourceCounts` action, you
+  may not immediately receive resource counts in the following situations:
+
+  <ul> <li> You are a new AWS Config customer
+
+  </li> <li> You just enabled resource recording
+
+  </li> </ul> It may take a few minutes for AWS Config to record and count
+  your resources. Wait a few minutes and then retry the
+  `GetDiscoveredResourceCounts` action.
+
+  </note>
+  """
+  def get_discovered_resource_counts(client, input, options \\ []) do
+    request(client, "GetDiscoveredResourceCounts", input, options)
+  end
+
+  @doc """
   Returns a list of configuration items for the specified resource. The list
   contains details about each state of the resource during the specified time
   interval.
 
-  The response is paginated, and by default, AWS Config returns a limit of 10
+  The response is paginated. By default, AWS Config returns a limit of 10
   configuration items per page. You can customize this number with the
-  `limit` parameter. The response includes a `nextToken` string, and to get
-  the next page of results, run the request again and enter this string for
-  the `nextToken` parameter.
+  `limit` parameter. The response includes a `nextToken` string. To get the
+  next page of results, run the request again and specify the string for the
+  `nextToken` parameter.
 
   <note> Each call to the API is limited to span a duration of seven days. It
   is likely that the number of records returned is smaller than the specified
@@ -312,11 +375,11 @@ defmodule AWS.Config do
   <note> You can specify either resource IDs or a resource name but not both
   in the same request.
 
-  </note> The response is paginated, and by default AWS Config lists 100
+  </note> The response is paginated. By default, AWS Config lists 100
   resource identifiers on each page. You can customize this number with the
-  `limit` parameter. The response includes a `nextToken` string, and to get
-  the next page of results, run the request again and enter this string for
-  the `nextToken` parameter.
+  `limit` parameter. The response includes a `nextToken` string. To get the
+  next page of results, run the request again and specify the string for the
+  `nextToken` parameter.
   """
   def list_discovered_resources(client, input, options \\ []) do
     request(client, "ListDiscoveredResources", input, options)
@@ -338,9 +401,9 @@ defmodule AWS.Config do
   function. Specify the ARN for the `SourceIdentifier` key. This key is part
   of the `Source` object, which is part of the `ConfigRule` object.
 
-  If you are adding a new AWS managed Config rule, specify the rule's
-  identifier for the `SourceIdentifier` key. To reference AWS managed Config
-  rule identifiers, see [Using AWS Managed Config
+  If you are adding an AWS managed Config rule, specify the rule's identifier
+  for the `SourceIdentifier` key. To reference AWS managed Config rule
+  identifiers, see [About AWS Managed Config
   Rules](http://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_use-managed-rules.html).
 
   For any new rule that you add, specify the `ConfigRuleName` in the

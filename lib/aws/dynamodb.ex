@@ -171,6 +171,69 @@ defmodule AWS.DynamoDB do
   end
 
   @doc """
+  Creates a backup for an existing table.
+
+  Each time you create an On-Demand Backup, the entire table data is backed
+  up. There is no limit to the number of on-demand backups that can be taken.
+
+  When you create an On-Demand Backup, a time marker of the request is
+  cataloged, and the backup is created asynchronously, by applying all
+  changes until the time of the request to the last full table snapshot.
+  Backup requests are processed instantaneously and become available for
+  restore within minutes.
+
+  You can call `CreateBackup` at a maximum rate of 50 times per second.
+
+  All backups in DynamoDB work without consuming any provisioned throughput
+  on the table.
+
+  If you submit a backup request on 2018-12-14 at 14:25:00, the backup is
+  guaranteed to contain all data committed to the table up to 14:24:00, and
+  data committed after 14:26:00 will not be. The backup may or may not
+  contain data modifications made between 14:24:00 and 14:26:00. On-Demand
+  Backup does not support causal consistency.
+
+  Along with data, the following are also included on the backups:
+
+  <ul> <li> Global secondary indexes (GSIs)
+
+  </li> <li> Local secondary indexes (LSIs)
+
+  </li> <li> Streams
+
+  </li> <li> Provisioned read and write capacity
+
+  </li> </ul>
+  """
+  def create_backup(client, input, options \\ []) do
+    request(client, "CreateBackup", input, options)
+  end
+
+  @doc """
+  Creates a global table from an existing table. A global table creates a
+  replication relationship between two or more DynamoDB tables with the same
+  table name in the provided regions.
+
+  Tables can only be added as the replicas of a global table group under the
+  following conditions:
+
+  <ul> <li> The tables must have the same name.
+
+  </li> <li> The tables must contain no items.
+
+  </li> <li> The tables must have the same hash key and sort key (if
+  present).
+
+  </li> <li> The tables must have DynamoDB Streams enabled
+  (NEW_AND_OLD_IMAGES).
+
+  </li> </ul>
+  """
+  def create_global_table(client, input, options \\ []) do
+    request(client, "CreateGlobalTable", input, options)
+  end
+
+  @doc """
   The `CreateTable` operation adds a new table to your account. In an AWS
   account, table names must be unique within each region. That is, you can
   have two tables with same name if you create the tables in different
@@ -192,6 +255,15 @@ defmodule AWS.DynamoDB do
   """
   def create_table(client, input, options \\ []) do
     request(client, "CreateTable", input, options)
+  end
+
+  @doc """
+  Deletes an existing backup of a table.
+
+  You can call `DeleteBackup` at a maximum rate of 10 times per second.
+  """
+  def delete_backup(client, input, options \\ []) do
+    request(client, "DeleteBackup", input, options)
   end
 
   @doc """
@@ -238,6 +310,33 @@ defmodule AWS.DynamoDB do
   """
   def delete_table(client, input, options \\ []) do
     request(client, "DeleteTable", input, options)
+  end
+
+  @doc """
+  Describes an existing backup of a table.
+
+  You can call `DescribeBackup` at a maximum rate of 10 times per second.
+  """
+  def describe_backup(client, input, options \\ []) do
+    request(client, "DescribeBackup", input, options)
+  end
+
+  @doc """
+  Checks the status of the backup restore settings on the specified table. If
+  backups are enabled, `ContinuousBackupsStatus` will bet set to ENABLED.
+
+  You can call `DescribeContinuousBackups` at a maximum rate of 10 times per
+  second.
+  """
+  def describe_continuous_backups(client, input, options \\ []) do
+    request(client, "DescribeContinuousBackups", input, options)
+  end
+
+  @doc """
+  Returns information about the specified global table.
+  """
+  def describe_global_table(client, input, options \\ []) do
+    request(client, "DescribeGlobalTable", input, options)
   end
 
   @doc """
@@ -348,6 +447,29 @@ defmodule AWS.DynamoDB do
   end
 
   @doc """
+  List backups associated with an AWS account. To list backups for a given
+  table, specify `TableName`. `ListBackups` returns a paginated list of
+  results with at most 1MB worth of items in a page. You can also specify a
+  limit for the maximum number of entries to be returned in a page.
+
+  In the request, start time is inclusive but end time is exclusive. Note
+  that these limits are for the time at which the original backup was
+  requested.
+
+  You can call `ListBackups` a maximum of 5 times per second.
+  """
+  def list_backups(client, input, options \\ []) do
+    request(client, "ListBackups", input, options)
+  end
+
+  @doc """
+  Lists all global tables that have a replica in the specified region.
+  """
+  def list_global_tables(client, input, options \\ []) do
+    request(client, "ListGlobalTables", input, options)
+  end
+
+  @doc """
   Returns an array of table names associated with the current account and
   endpoint. The output from `ListTables` is paginated, with each page
   returning a maximum of 100 table names.
@@ -374,16 +496,47 @@ defmodule AWS.DynamoDB do
   specified table, the new item completely replaces the existing item. You
   can perform a conditional put operation (add a new item if one with the
   specified primary key doesn't exist), or replace an existing item if it has
-  certain attribute values.
+  certain attribute values. You can return the item's attribute values in the
+  same operation, using the `ReturnValues` parameter.
 
-  In addition to putting an item, you can also return the item's attribute
-  values in the same operation, using the `ReturnValues` parameter.
+  <important> This topic provides general information about the `PutItem`
+  API.
 
-  When you add an item, the primary key attribute(s) are the only required
-  attributes. Attribute values cannot be null. String and Binary type
-  attributes must have lengths greater than zero. Set type attributes cannot
-  be empty. Requests with empty values will be rejected with a
-  `ValidationException` exception.
+  For information on how to call the `PutItem` API using the AWS SDK in
+  specific languages, see the following:
+
+  <ul> <li> [ PutItem in the AWS Command Line Interface
+  ](http://docs.aws.amazon.com/goto/aws-cli/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for .NET
+  ](http://docs.aws.amazon.com/goto/DotNetSDKV3/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for C++
+  ](http://docs.aws.amazon.com/goto/SdkForCpp/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for Go
+  ](http://docs.aws.amazon.com/goto/SdkForGoV1/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for Java
+  ](http://docs.aws.amazon.com/goto/SdkForJava/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for JavaScript
+  ](http://docs.aws.amazon.com/goto/AWSJavaScriptSDK/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for PHP V3
+  ](http://docs.aws.amazon.com/goto/SdkForPHPV3/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for Python
+  ](http://docs.aws.amazon.com/goto/boto3/dynamodb-2012-08-10/PutItem)
+
+  </li> <li> [ PutItem in the AWS SDK for Ruby V2
+  ](http://docs.aws.amazon.com/goto/SdkForRubyV2/dynamodb-2012-08-10/PutItem)
+
+  </li> </ul> </important> When you add an item, the primary key attribute(s)
+  are the only required attributes. Attribute values cannot be null. String
+  and Binary type attributes must have lengths greater than zero. Set type
+  attributes cannot be empty. Requests with empty values will be rejected
+  with a `ValidationException` exception.
 
   <note> To prevent a new item from replacing an existing item, use a
   conditional expression that contains the `attribute_not_exists` function
@@ -401,36 +554,90 @@ defmodule AWS.DynamoDB do
   end
 
   @doc """
-  A `Query` operation uses the primary key of a table or a secondary index to
-  directly access items from that table or index.
+  The `Query` operation finds items based on primary key values. You can
+  query any table or secondary index that has a composite primary key (a
+  partition key and a sort key).
 
   Use the `KeyConditionExpression` parameter to provide a specific value for
   the partition key. The `Query` operation will return all of the items from
   the table or index with that partition key value. You can optionally narrow
   the scope of the `Query` operation by specifying a sort key value and a
-  comparison operator in `KeyConditionExpression`. You can use the
-  `ScanIndexForward` parameter to get results in forward or reverse order, by
-  sort key.
+  comparison operator in `KeyConditionExpression`. To further refine the
+  `Query` results, you can optionally provide a `FilterExpression`. A
+  `FilterExpression` determines which items within the results should be
+  returned to you. All of the other results are discarded.
 
-  Queries that do not return results consume the minimum number of read
-  capacity units for that type of read operation.
+  A `Query` operation always returns a result set. If no matching items are
+  found, the result set will be empty. Queries that do not return results
+  consume the minimum number of read capacity units for that type of read
+  operation.
 
-  If the total number of items meeting the query criteria exceeds the result
-  set size limit of 1 MB, the query stops and results are returned to the
-  user with the `LastEvaluatedKey` element to continue the query in a
-  subsequent operation. Unlike a `Scan` operation, a `Query` operation never
-  returns both an empty result set and a `LastEvaluatedKey` value.
-  `LastEvaluatedKey` is only provided if you have used the `Limit` parameter,
-  or if the result set exceeds 1 MB (prior to applying a filter).
+  <note> DynamoDB calculates the number of read capacity units consumed based
+  on item size, not on the amount of data that is returned to an application.
+  The number of capacity units consumed will be the same whether you request
+  all of the attributes (the default behavior) or just some of them (using a
+  projection expression). The number will also be the same whether or not you
+  use a `FilterExpression`.
 
-  You can query a table, a local secondary index, or a global secondary
-  index. For a query on a table or on a local secondary index, you can set
-  the `ConsistentRead` parameter to `true` and obtain a strongly consistent
-  result. Global secondary indexes support eventually consistent reads only,
-  so do not specify `ConsistentRead` when querying a global secondary index.
+  </note> `Query` results are always sorted by the sort key value. If the
+  data type of the sort key is Number, the results are returned in numeric
+  order; otherwise, the results are returned in order of UTF-8 bytes. By
+  default, the sort order is ascending. To reverse the order, set the
+  `ScanIndexForward` parameter to false.
+
+  A single `Query` operation will read up to the maximum number of items set
+  (if using the `Limit` parameter) or a maximum of 1 MB of data and then
+  apply any filtering to the results using `FilterExpression`. If
+  `LastEvaluatedKey` is present in the response, you will need to paginate
+  the result set. For more information, see [Paginating the
+  Results](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html#Query.Pagination)
+  in the *Amazon DynamoDB Developer Guide*.
+
+  `FilterExpression` is applied after a `Query` finishes, but before the
+  results are returned. A `FilterExpression` cannot contain partition key or
+  sort key attributes. You need to specify those attributes in the
+  `KeyConditionExpression`.
+
+  <note> A `Query` operation can return an empty result set and a
+  `LastEvaluatedKey` if all the items read for the page of results are
+  filtered out.
+
+  </note> You can query a table, a local secondary index, or a global
+  secondary index. For a query on a table or on a local secondary index, you
+  can set the `ConsistentRead` parameter to `true` and obtain a strongly
+  consistent result. Global secondary indexes support eventually consistent
+  reads only, so do not specify `ConsistentRead` when querying a global
+  secondary index.
   """
   def query(client, input, options \\ []) do
     request(client, "Query", input, options)
+  end
+
+  @doc """
+  Creates a new table from an existing backup. Any number of users can
+  execute up to 10 concurrent restores in a given account.
+
+  You can call `RestoreTableFromBackup` at a maximum rate of 10 times per
+  second.
+
+  You must manually set up the following on the restored table:
+
+  <ul> <li> Auto scaling policies
+
+  </li> <li> IAM policies
+
+  </li> <li> Cloudwatch metrics and alarms
+
+  </li> <li> Tags
+
+  </li> <li> Stream settings
+
+  </li> <li> Time to Live (TTL) settings
+
+  </li> </ul>
+  """
+  def restore_table_from_backup(client, input, options \\ []) do
+    request(client, "RestoreTableFromBackup", input, options)
   end
 
   @doc """
@@ -444,18 +651,26 @@ defmodule AWS.DynamoDB do
   The results also include the number of items exceeding the limit. A scan
   can result in no table data meeting the filter criteria.
 
-  By default, `Scan` operations proceed sequentially; however, for faster
-  performance on a large table or secondary index, applications can request a
-  parallel `Scan` operation by providing the `Segment` and `TotalSegments`
-  parameters. For more information, see [Parallel
-  Scan](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/QueryAndScan.html#QueryAndScanParallelScan)
+  A single `Scan` operation will read up to the maximum number of items set
+  (if using the `Limit` parameter) or a maximum of 1 MB of data and then
+  apply any filtering to the results using `FilterExpression`. If
+  `LastEvaluatedKey` is present in the response, you will need to paginate
+  the result set. For more information, see [Paginating the
+  Results](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html#Scan.Pagination)
   in the *Amazon DynamoDB Developer Guide*.
 
-  By default, `Scan` uses eventually consistent reads when accessing the data
-  in a table; therefore, the result set might not include the changes to data
-  in the table immediately before the operation began. If you need a
-  consistent copy of the data, as of the time that the Scan begins, you can
-  set the `ConsistentRead` parameter to `true`.
+  `Scan` operations proceed sequentially; however, for faster performance on
+  a large table or secondary index, applications can request a parallel
+  `Scan` operation by providing the `Segment` and `TotalSegments` parameters.
+  For more information, see [Parallel
+  Scan](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Scan.html#Scan.ParallelScan)
+  in the *Amazon DynamoDB Developer Guide*.
+
+  `Scan` uses eventually consistent reads when accessing the data in a table;
+  therefore, the result set might not include the changes to data in the
+  table immediately before the operation began. If you need a consistent copy
+  of the data, as of the time that the `Scan` begins, you can set the
+  `ConsistentRead` parameter to `true`.
   """
   def scan(client, input, options \\ []) do
     request(client, "Scan", input, options)
@@ -485,6 +700,23 @@ defmodule AWS.DynamoDB do
   """
   def untag_resource(client, input, options \\ []) do
     request(client, "UntagResource", input, options)
+  end
+
+  @doc """
+  Adds or removes replicas in the specified global table. The global table
+  must already exist to be able to use this operation. Any replica to be
+  added must be empty, must have the same name as the global table, must have
+  the same key schema, must have DynamoDB Streams enabled, and cannot have
+  any local secondary indexes (LSIs).
+
+  <note> Although you can use `UpdateGlobalTable` to add replicas and remove
+  replicas in a single request, for simplicity we recommend that you issue
+  separate requests for adding or removing replicas.
+
+  </note>
+  """
+  def update_global_table(client, input, options \\ []) do
+    request(client, "UpdateGlobalTable", input, options)
   end
 
   @doc """
@@ -527,11 +759,11 @@ defmodule AWS.DynamoDB do
   end
 
   @doc """
-  Specify the lifetime of individual table items. The database automatically
-  removes the item at the expiration of the item. The UpdateTimeToLive method
-  will enable or disable TTL for the specified table. A successful
-  `UpdateTimeToLive` call returns the current `TimeToLiveSpecification`; it
-  may take up to one hour for the change to fully process.
+  The UpdateTimeToLive method will enable or disable TTL for the specified
+  table. A successful `UpdateTimeToLive` call returns the current
+  `TimeToLiveSpecification`; it may take up to one hour for the change to
+  fully process. Any additional `UpdateTimeToLive` calls for the same table
+  during this one hour duration result in a `ValidationException`.
 
   TTL compares the current time in epoch time format to the time stored in
   the TTL attribute of an item. If the epoch time value stored in the

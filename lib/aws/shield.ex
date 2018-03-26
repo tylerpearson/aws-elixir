@@ -16,7 +16,7 @@ defmodule AWS.Shield do
   @doc """
   Enables AWS Shield Advanced for a specific AWS resource. The resource can
   be an Amazon CloudFront distribution, Elastic Load Balancing load balancer,
-  or an Amazon Route 53 hosted zone.
+  Elastic IP Address, or an Amazon Route 53 hosted zone.
   """
   def create_protection(client, input, options \\ []) do
     request(client, "CreateProtection", input, options)
@@ -37,7 +37,9 @@ defmodule AWS.Shield do
   end
 
   @doc """
-  Removes AWS Shield Advanced from an account.
+  Removes AWS Shield Advanced from an account. AWS Shield Advanced requires a
+  1-year subscription commitment. You cannot delete a subscription prior to
+  the completion of that commitment.
   """
   def delete_subscription(client, input, options \\ []) do
     request(client, "DeleteSubscription", input, options)
@@ -62,6 +64,13 @@ defmodule AWS.Shield do
   """
   def describe_subscription(client, input, options \\ []) do
     request(client, "DescribeSubscription", input, options)
+  end
+
+  @doc """
+  Returns the `SubscriptionState`, either `Active` or `Inactive`.
+  """
+  def get_subscription_state(client, input, options \\ []) do
+    request(client, "GetSubscriptionState", input, options)
   end
 
   @doc """

@@ -34,9 +34,8 @@ defmodule AWS.Snowball do
   end
 
   @doc """
-  Creates an address for a Snowball to be shipped to.
-
-  Addresses are validated at the time of creation. The address you provide
+  Creates an address for a Snowball to be shipped to. In most regions,
+  addresses are validated at the time of creation. The address you provide
   must be located within the serviceable area of your region. If the address
   is invalid or unsupported, then an exception is thrown.
   """
@@ -59,7 +58,6 @@ defmodule AWS.Snowball do
   policies and permissions in place to create a job for Snowball. If you're
   creating a job for a node in a cluster, you only need to provide the
   `clusterId` value; the other job attributes are inherited from the cluster.
-  .
   """
   def create_job(client, input, options \\ []) do
     request(client, "CreateJob", input, options)
@@ -92,7 +90,7 @@ defmodule AWS.Snowball do
 
   @doc """
   Returns information about a specific job including shipping information,
-  job status, and other important metadata. .
+  job status, and other important metadata.
   """
   def describe_job(client, input, options \\ []) do
     request(client, "DescribeJob", input, options)

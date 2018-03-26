@@ -25,8 +25,9 @@ defmodule AWS.CodePipeline do
 
   </li> <li> `DeletePipeline`, which deletes the specified pipeline.
 
-  </li> <li> `GetPipeline`, which returns information about a pipeline
-  structure.
+  </li> <li> `GetPipeline`, which returns information about the pipeline
+  structure and pipeline metadata, including the pipeline Amazon Resource
+  Name (ARN).
 
   </li> <li> `GetPipelineExecution`, which returns information about a
   specific execution of a pipeline.
@@ -36,6 +37,9 @@ defmodule AWS.CodePipeline do
 
   </li> <li> `ListPipelines`, which gets a summary of all of the pipelines
   associated with your account.
+
+  </li> <li> `ListPipelineExecutions`, which gets a summary of the most
+  recent executions for a pipeline.
 
   </li> <li> `StartPipelineExecution`, which runs the the most recent
   revision of an artifact through the pipeline.
@@ -256,6 +260,13 @@ defmodule AWS.CodePipeline do
   """
   def list_action_types(client, input, options \\ []) do
     request(client, "ListActionTypes", input, options)
+  end
+
+  @doc """
+  Gets a summary of the most recent executions for a pipeline.
+  """
+  def list_pipeline_executions(client, input, options \\ []) do
+    request(client, "ListPipelineExecutions", input, options)
   end
 
   @doc """

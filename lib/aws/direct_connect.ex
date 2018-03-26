@@ -90,18 +90,15 @@ defmodule AWS.DirectConnect do
   connection will cause the original LAG to fall below its setting for
   minimum number of operational connections, the request fails.
 
-  Virtual interfaces that are directly associated with the connection are not
-  automatically migrated. You can delete them or associate them with the
-  target LAG using `AssociateVirtualInterface`. If the connection was
-  originally associated with a different LAG, the virtual interfaces remain
-  associated with the original LAG.
+  Any virtual interfaces that are directly associated with the connection are
+  automatically re-associated with the LAG. If the connection was originally
+  associated with a different LAG, the virtual interfaces remain associated
+  with the original LAG.
 
-  For interconnects, hosted connections are not automatically migrated. You
-  can delete them, or the owner of the physical connection can associate them
-  with the target LAG using `AssociateHostedConnection`. After all hosted
-  connections have been migrated, the interconnect can be migrated into the
-  LAG. If the interconnect is already associated with a LAG, the hosted
-  connections remain associated with the original LAG.
+  For interconnects, any hosted connections are automatically re-associated
+  with the LAG. If the interconnect was originally associated with a
+  different LAG, the hosted connections remain associated with the original
+  LAG.
   """
   def associate_connection_with_lag(client, input, options \\ []) do
     request(client, "AssociateConnectionWithLag", input, options)
@@ -133,9 +130,11 @@ defmodule AWS.DirectConnect do
   with a LAG; hosted connections must be migrated along with their virtual
   interfaces using `AssociateHostedConnection`.
 
-  Hosted virtual interfaces (an interface for which the owner of the
-  connection is not the owner of physical connection) can only be
-  reassociated by the owner of the physical connection.
+  In order to reassociate a virtual interface to a new connection or LAG, the
+  requester must own either the virtual interface itself or the connection to
+  which the virtual interface is currently associated. Additionally, the
+  requester must own the connection or LAG to which the virtual interface
+  will be newly associated.
   """
   def associate_virtual_interface(client, input, options \\ []) do
     request(client, "AssociateVirtualInterface", input, options)
@@ -157,8 +156,8 @@ defmodule AWS.DirectConnect do
   customer.
 
   After the virtual interface owner calls this function, the virtual
-  interface will be created and attached to the given virtual private
-  gateway, and will be available for handling traffic.
+  interface will be created and attached to the given virtual private gateway
+  or direct connect gateway, and will be available for handling traffic.
   """
   def confirm_private_virtual_interface(client, input, options \\ []) do
     request(client, "ConfirmPrivateVirtualInterface", input, options)
@@ -205,6 +204,8 @@ defmodule AWS.DirectConnect do
   connections with AWS Direct Connect locations in multiple regions, but a
   connection in one region does not provide connectivity to other regions.
 
+  To find the locations for your region, use `DescribeLocations`.
+
   You can automatically add the new connection to a link aggregation group
   (LAG) by specifying a LAG ID in the request. This ensures that the new
   connection is allocated on the same AWS Direct Connect endpoint that hosts
@@ -213,6 +214,29 @@ defmodule AWS.DirectConnect do
   """
   def create_connection(client, input, options \\ []) do
     request(client, "CreateConnection", input, options)
+  end
+
+  @doc """
+  Creates a new direct connect gateway. A direct connect gateway is an
+  intermediate object that enables you to connect a set of virtual interfaces
+  and virtual private gateways. direct connect gateways are global and
+  visible in any AWS region after they are created. The virtual interfaces
+  and virtual private gateways that are connected through a direct connect
+  gateway can be in different regions. This enables you to connect to a VPC
+  in any region, regardless of the region in which the virtual interfaces are
+  located, and pass traffic between them.
+  """
+  def create_direct_connect_gateway(client, input, options \\ []) do
+    request(client, "CreateDirectConnectGateway", input, options)
+  end
+
+  @doc """
+  Creates an association between a direct connect gateway and a virtual
+  private gateway (VGW). The VGW must be attached to a VPC and must not be
+  associated with another direct connect gateway.
+  """
+  def create_direct_connect_gateway_association(client, input, options \\ []) do
+    request(client, "CreateDirectConnectGatewayAssociation", input, options)
   end
 
   @doc """
@@ -326,6 +350,24 @@ defmodule AWS.DirectConnect do
   end
 
   @doc """
+  Deletes a direct connect gateway. You must first delete all virtual
+  interfaces that are attached to the direct connect gateway and disassociate
+  all virtual private gateways that are associated with the direct connect
+  gateway.
+  """
+  def delete_direct_connect_gateway(client, input, options \\ []) do
+    request(client, "DeleteDirectConnectGateway", input, options)
+  end
+
+  @doc """
+  Deletes the association between a direct connect gateway and a virtual
+  private gateway.
+  """
+  def delete_direct_connect_gateway_association(client, input, options \\ []) do
+    request(client, "DeleteDirectConnectGatewayAssociation", input, options)
+  end
+
+  @doc """
   Deletes the specified interconnect.
 
   <note> This is intended for use by AWS Direct Connect partners only.
@@ -389,6 +431,43 @@ defmodule AWS.DirectConnect do
   """
   def describe_connections_on_interconnect(client, input, options \\ []) do
     request(client, "DescribeConnectionsOnInterconnect", input, options)
+  end
+
+  @doc """
+  Returns a list of all direct connect gateway and virtual private gateway
+  (VGW) associations. Either a direct connect gateway ID or a VGW ID must be
+  provided in the request. If a direct connect gateway ID is provided, the
+  response returns all VGWs associated with the direct connect gateway. If a
+  VGW ID is provided, the response returns all direct connect gateways
+  associated with the VGW. If both are provided, the response only returns
+  the association that matches both the direct connect gateway and the VGW.
+  """
+  def describe_direct_connect_gateway_associations(client, input, options \\ []) do
+    request(client, "DescribeDirectConnectGatewayAssociations", input, options)
+  end
+
+  @doc """
+  Returns a list of all direct connect gateway and virtual interface (VIF)
+  attachments. Either a direct connect gateway ID or a VIF ID must be
+  provided in the request. If a direct connect gateway ID is provided, the
+  response returns all VIFs attached to the direct connect gateway. If a VIF
+  ID is provided, the response returns all direct connect gateways attached
+  to the VIF. If both are provided, the response only returns the attachment
+  that matches both the direct connect gateway and the VIF.
+  """
+  def describe_direct_connect_gateway_attachments(client, input, options \\ []) do
+    request(client, "DescribeDirectConnectGatewayAttachments", input, options)
+  end
+
+  @doc """
+  Returns a list of direct connect gateways in your account. Deleted direct
+  connect gateways are not returned. You can provide a direct connect gateway
+  ID in the request to return information about the specific direct connect
+  gateway only. Otherwise, if a direct connect gateway ID is not provided,
+  information about all of your direct connect gateways is returned.
+  """
+  def describe_direct_connect_gateways(client, input, options \\ []) do
+    request(client, "DescribeDirectConnectGateways", input, options)
   end
 
   @doc """
@@ -456,8 +535,8 @@ defmodule AWS.DirectConnect do
 
   @doc """
   Returns the list of AWS Direct Connect locations in the current AWS region.
-  These are the locations that may be selected when calling CreateConnection
-  or CreateInterconnect.
+  These are the locations that may be selected when calling
+  `CreateConnection` or `CreateInterconnect`.
   """
   def describe_locations(client, input, options \\ []) do
     request(client, "DescribeLocations", input, options)

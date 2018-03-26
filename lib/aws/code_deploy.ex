@@ -5,61 +5,73 @@ defmodule AWS.CodeDeploy do
   @moduledoc """
   AWS CodeDeploy
 
-  **Overview**
+  AWS CodeDeploy is a deployment service that automates application
+  deployments to Amazon EC2 instances, on-premises instances running in your
+  own facility, or serverless AWS Lambda functions.
 
-  This reference guide provides descriptions of the AWS CodeDeploy APIs. For
-  more information about AWS CodeDeploy, see the [AWS CodeDeploy User
-  Guide](http://docs.aws.amazon.com/codedeploy/latest/userguide).
+  You can deploy a nearly unlimited variety of application content, such as
+  an updated Lambda function, code, web and configuration files, executables,
+  packages, scripts, multimedia files, and so on. AWS CodeDeploy can deploy
+  application content stored in Amazon S3 buckets, GitHub repositories, or
+  Bitbucket repositories. You do not need to make changes to your existing
+  code before you can use AWS CodeDeploy.
 
-  **Using the APIs**
+  AWS CodeDeploy makes it easier for you to rapidly release new features,
+  helps you avoid downtime during application deployment, and handles the
+  complexity of updating your applications, without many of the risks
+  associated with error-prone manual deployments.
 
-  You can use the AWS CodeDeploy APIs to work with the following:
+  **AWS CodeDeploy Components**
 
-  <ul> <li> Applications are unique identifiers used by AWS CodeDeploy to
-  ensure the correct combinations of revisions, deployment configurations,
-  and deployment groups are being referenced during deployments.
+  Use the information in this guide to help you work with the following AWS
+  CodeDeploy components:
 
-  You can use the AWS CodeDeploy APIs to create, delete, get, list, and
-  update applications.
+  <ul> <li> **Application**: A name that uniquely identifies the application
+  you want to deploy. AWS CodeDeploy uses this name, which functions as a
+  container, to ensure the correct combination of revision, deployment
+  configuration, and deployment group are referenced during a deployment.
 
-  </li> <li> Deployment configurations are sets of deployment rules and
-  success and failure conditions used by AWS CodeDeploy during deployments.
+  </li> <li> **Deployment group**: A set of individual instances or
+  CodeDeploy Lambda applications. A Lambda deployment group contains a group
+  of applications. An EC2/On-premises deployment group contains individually
+  tagged instances, Amazon EC2 instances in Auto Scaling groups, or both.
 
-  You can use the AWS CodeDeploy APIs to create, delete, get, and list
-  deployment configurations.
+  </li> <li> **Deployment configuration**: A set of deployment rules and
+  deployment success and failure conditions used by AWS CodeDeploy during a
+  deployment.
 
-  </li> <li> Deployment groups are groups of instances to which application
-  revisions can be deployed.
+  </li> <li> **Deployment**: The process and the components used in the
+  process of updating a Lambda function or of installing content on one or
+  more instances.
 
-  You can use the AWS CodeDeploy APIs to create, delete, get, list, and
-  update deployment groups.
+  </li> <li> **Application revisions**: For an AWS Lambda deployment, this is
+  an AppSpec file that specifies the Lambda function to update and one or
+  more functions to validate deployment lifecycle events. For an
+  EC2/On-premises deployment, this is an archive file containing source
+  content—source code, web pages, executable files, and deployment
+  scripts—along with an AppSpec file. Revisions are stored in Amazon S3
+  buckets or GitHub repositories. For Amazon S3, a revision is uniquely
+  identified by its Amazon S3 object key and its ETag, version, or both. For
+  GitHub, a revision is uniquely identified by its commit ID.
 
-  </li> <li> Instances represent Amazon EC2 instances to which application
-  revisions are deployed. Instances are identified by their Amazon EC2 tags
-  or Auto Scaling group names. Instances belong to deployment groups.
+  </li> </ul> This guide also contains information to help you get details
+  about the instances in your deployments, to make on-premises instances
+  available for AWS CodeDeploy deployments, and to get details about a Lambda
+  function deployment.
 
-  You can use the AWS CodeDeploy APIs to get and list instance.
+  **AWS CodeDeploy Information Resources**
 
-  </li> <li> Deployments represent the process of deploying revisions to
-  instances.
+  <ul> <li> [AWS CodeDeploy User
+  Guide](http://docs.aws.amazon.com/codedeploy/latest/userguide)
 
-  You can use the AWS CodeDeploy APIs to create, get, list, and stop
-  deployments.
+  </li> <li> [AWS CodeDeploy API Reference
+  Guide](http://docs.aws.amazon.com/codedeploy/latest/APIReference/)
 
-  </li> <li> Application revisions are archive files stored in Amazon S3
-  buckets or GitHub repositories. These revisions contain source content
-  (such as source code, web pages, executable files, and deployment scripts)
-  along with an application specification (AppSpec) file. (The AppSpec file
-  is unique to AWS CodeDeploy; it defines the deployment actions you want AWS
-  CodeDeploy to execute.) For application revisions stored in Amazon S3
-  buckets, an application revision is uniquely identified by its Amazon S3
-  object key and its ETag, version, or both. For application revisions stored
-  in GitHub repositories, an application revision is uniquely identified by
-  its repository name and commit ID. Application revisions are deployed
-  through deployment groups.
+  </li> <li> [AWS CLI Reference for AWS
+  CodeDeploy](http://docs.aws.amazon.com/cli/latest/reference/deploy/index.html)
 
-  You can use the AWS CodeDeploy APIs to get, list, and register application
-  revisions.
+  </li> <li> [AWS CodeDeploy Developer
+  Forum](https://forums.aws.amazon.com/forum.jspa?forumID=179)
 
   </li> </ul>
   """
@@ -115,11 +127,12 @@ defmodule AWS.CodeDeploy do
   end
 
   @doc """
-  Starts the process of rerouting traffic from instances in the original
-  environment to instances in thereplacement environment without waiting for
-  a specified wait time to elapse. (Traffic rerouting, which is achieved by
-  registering instances in the replacement environment with the load
-  balancer, can start as soon as all instances have a status of Ready.)
+  For a blue/green deployment, starts the process of rerouting traffic from
+  instances in the original environment to instances in the replacement
+  environment without waiting for a specified wait time to elapse. (Traffic
+  rerouting, which is achieved by registering instances in the replacement
+  environment with the load balancer, can start as soon as all instances have
+  a status of Ready.)
   """
   def continue_deployment(client, input, options \\ []) do
     request(client, "ContinueDeployment", input, options)
@@ -177,6 +190,13 @@ defmodule AWS.CodeDeploy do
   """
   def delete_deployment_group(client, input, options \\ []) do
     request(client, "DeleteDeploymentGroup", input, options)
+  end
+
+  @doc """
+  Deletes a GitHub account connection.
+  """
+  def delete_git_hub_account_token(client, input, options \\ []) do
+    request(client, "DeleteGitHubAccountToken", input, options)
   end
 
   @doc """
@@ -283,6 +303,13 @@ defmodule AWS.CodeDeploy do
   end
 
   @doc """
+  Lists the names of stored connections to GitHub accounts.
+  """
+  def list_git_hub_account_token_names(client, input, options \\ []) do
+    request(client, "ListGitHubAccountTokenNames", input, options)
+  end
+
+  @doc """
   Gets a list of names for one or more on-premises instances.
 
   Unless otherwise specified, both registered and deregistered on-premises
@@ -291,6 +318,15 @@ defmodule AWS.CodeDeploy do
   """
   def list_on_premises_instances(client, input, options \\ []) do
     request(client, "ListOnPremisesInstances", input, options)
+  end
+
+  @doc """
+  Sets the result of a Lambda validation function. The function validates one
+  or both lifecycle events (`BeforeAllowTraffic` and `AfterAllowTraffic`) and
+  returns `Succeeded` or `Failed`.
+  """
+  def put_lifecycle_event_hook_execution_status(client, input, options \\ []) do
+    request(client, "PutLifecycleEventHookExecutionStatus", input, options)
   end
 
   @doc """

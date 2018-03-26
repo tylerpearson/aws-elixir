@@ -16,6 +16,13 @@ defmodule AWS.DeviceFarm do
   end
 
   @doc """
+  Creates a network profile.
+  """
+  def create_network_profile(client, input, options \\ []) do
+    request(client, "CreateNetworkProfile", input, options)
+  end
+
+  @doc """
   Creates a new project.
   """
   def create_project(client, input, options \\ []) do
@@ -42,6 +49,13 @@ defmodule AWS.DeviceFarm do
   """
   def delete_device_pool(client, input, options \\ []) do
     request(client, "DeleteDevicePool", input, options)
+  end
+
+  @doc """
+  Deletes a network profile.
+  """
+  def delete_network_profile(client, input, options \\ []) do
+    request(client, "DeleteNetworkProfile", input, options)
   end
 
   @doc """
@@ -110,6 +124,13 @@ defmodule AWS.DeviceFarm do
   """
   def get_job(client, input, options \\ []) do
     request(client, "GetJob", input, options)
+  end
+
+  @doc """
+  Returns information about a network profile.
+  """
+  def get_network_profile(client, input, options \\ []) do
+    request(client, "GetNetworkProfile", input, options)
   end
 
   @doc """
@@ -198,10 +219,29 @@ defmodule AWS.DeviceFarm do
   end
 
   @doc """
-  Gets information about jobs.
+  Gets information about jobs for a given test run.
   """
   def list_jobs(client, input, options \\ []) do
     request(client, "ListJobs", input, options)
+  end
+
+  @doc """
+  Returns the list of available network profiles.
+  """
+  def list_network_profiles(client, input, options \\ []) do
+    request(client, "ListNetworkProfiles", input, options)
+  end
+
+  @doc """
+  Returns a list of offering promotions. Each offering promotion record
+  contains the ID and description of the promotion. The API returns a
+  `NotEligible` error if the caller is not permitted to invoke the operation.
+  Contact
+  [aws-devicefarm-support@amazon.com](mailto:aws-devicefarm-support@amazon.com)
+  if you believe that you should be able to invoke this operation.
+  """
+  def list_offering_promotions(client, input, options \\ []) do
+    request(client, "ListOfferingPromotions", input, options)
   end
 
   @doc """
@@ -258,14 +298,14 @@ defmodule AWS.DeviceFarm do
   end
 
   @doc """
-  Gets information about suites.
+  Gets information about test suites for a given job.
   """
   def list_suites(client, input, options \\ []) do
     request(client, "ListSuites", input, options)
   end
 
   @doc """
-  Gets information about tests.
+  Gets information about tests in a given test suite.
   """
   def list_tests(client, input, options \\ []) do
     request(client, "ListTests", input, options)
@@ -343,6 +383,13 @@ defmodule AWS.DeviceFarm do
   """
   def update_device_pool(client, input, options \\ []) do
     request(client, "UpdateDevicePool", input, options)
+  end
+
+  @doc """
+  Updates the network profile with specific settings.
+  """
+  def update_network_profile(client, input, options \\ []) do
+    request(client, "UpdateNetworkProfile", input, options)
   end
 
   @doc """

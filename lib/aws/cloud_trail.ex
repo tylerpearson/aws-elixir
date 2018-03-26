@@ -80,8 +80,9 @@ defmodule AWS.CloudTrail do
   </li> <li> If your event selector includes read-only events, write-only
   events, or all.
 
-  </li> </ul> For more information, see [Configuring Event Selectors for
-  Trails](http://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-event-selectors-for-a-trail.html)
+  </li> </ul> For more information, see [Logging Data and Management Events
+  for Trails
+  ](http://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-management-and-data-events-with-cloudtrail.html)
   in the *AWS CloudTrail User Guide*.
   """
   def get_event_selectors(client, input, options \\ []) do
@@ -132,6 +133,8 @@ defmodule AWS.CloudTrail do
 
   </li> <li> Event name
 
+  </li> <li> Event source
+
   </li> <li> Resource name
 
   </li> <li> Resource type
@@ -157,11 +160,11 @@ defmodule AWS.CloudTrail do
 
   @doc """
   Configures an event selector for your trail. Use event selectors to specify
-  the type of events that you want your trail to log. When an event occurs in
-  your account, CloudTrail evaluates the event selectors in all trails. For
-  each trail, if the event matches any event selector, the trail processes
-  and logs the event. If the event doesn't match any event selector, the
-  trail doesn't log the event.
+  whether you want your trail to log management and/or data events. When an
+  event occurs in your account, CloudTrail evaluates the event selectors in
+  all trails. For each trail, if the event matches any event selector, the
+  trail processes and logs the event. If the event doesn't match any event
+  selector, the trail doesn't log the event.
 
   Example
 
@@ -185,8 +188,8 @@ defmodule AWS.CloudTrail do
   `InvalidHomeRegionException` is thrown.
 
   You can configure up to five event selectors for each trail. For more
-  information, see [Configuring Event Selectors for
-  Trails](http://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-event-selectors-for-a-trail.html)
+  information, see [Logging Data and Management Events for Trails
+  ](http://docs.aws.amazon.com/awscloudtrail/latest/userguide/logging-management-and-data-events-with-cloudtrail.html)
   in the *AWS CloudTrail User Guide*.
   """
   def put_event_selectors(client, input, options \\ []) do

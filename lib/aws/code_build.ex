@@ -10,7 +10,7 @@ defmodule AWS.CodeBuild do
   ready to deploy. AWS CodeBuild eliminates the need to provision, manage,
   and scale your own build servers. It provides prepackaged build
   environments for the most popular programming languages and build tools,
-  such as Apach Maven, Gradle, and more. You can also fully customize build
+  such as Apache Maven, Gradle, and more. You can also fully customize build
   environments in AWS CodeBuild to use your own build tools. AWS CodeBuild
   scales automatically to meet peak build requests, and you pay only for the
   build time you consume. For more information about AWS CodeBuild, see the
@@ -18,7 +18,9 @@ defmodule AWS.CodeBuild do
 
   AWS CodeBuild supports these operations:
 
-  <ul> <li> `BatchGetProjects`: Gets information about one or more build
+  <ul> <li> `BatchDeleteBuilds`: Deletes one or more builds.
+
+  </li> <li> `BatchGetProjects`: Gets information about one or more build
   projects. A *build project* defines how AWS CodeBuild will run a build.
   This includes information such as where to get the source code to build,
   the build environment to use, the build commands to run, and where to store
@@ -29,7 +31,19 @@ defmodule AWS.CodeBuild do
 
   </li> <li> `CreateProject`: Creates a build project.
 
+  </li> <li> `CreateWebhook`: For an existing AWS CodeBuild build project
+  that has its source code stored in a GitHub repository, enables AWS
+  CodeBuild to begin automatically rebuilding the source code every time a
+  code change is pushed to the repository.
+
+  </li> <li> `UpdateWebhook`: Changes the settings of an existing webhook.
+
   </li> <li> `DeleteProject`: Deletes a build project.
+
+  </li> <li> `DeleteWebhook`: For an existing AWS CodeBuild build project
+  that has its source code stored in a GitHub repository, stops AWS CodeBuild
+  from automatically rebuilding the source code every time a code change is
+  pushed to the repository.
 
   </li> <li> `ListProjects`: Gets a list of build project names, with each
   build project name representing a single build project.
@@ -56,6 +70,13 @@ defmodule AWS.CodeBuild do
   """
 
   @doc """
+  Deletes one or more builds.
+  """
+  def batch_delete_builds(client, input, options \\ []) do
+    request(client, "BatchDeleteBuilds", input, options)
+  end
+
+  @doc """
   Gets information about builds.
   """
   def batch_get_builds(client, input, options \\ []) do
@@ -77,10 +98,48 @@ defmodule AWS.CodeBuild do
   end
 
   @doc """
+  For an existing AWS CodeBuild build project that has its source code stored
+  in a GitHub repository, enables AWS CodeBuild to begin automatically
+  rebuilding the source code every time a code change is pushed to the
+  repository.
+
+  <important> If you enable webhooks for an AWS CodeBuild project, and the
+  project is used as a build step in AWS CodePipeline, then two identical
+  builds will be created for each commit. One build is triggered through
+  webhooks, and one through AWS CodePipeline. Because billing is on a
+  per-build basis, you will be billed for both builds. Therefore, if you are
+  using AWS CodePipeline, we recommend that you disable webhooks in
+  CodeBuild. In the AWS CodeBuild console, clear the Webhook box. For more
+  information, see step 9 in [Change a Build Project's
+  Settings](http://docs.aws.amazon.com/codebuild/latest/userguide/change-project.html#change-project-console).
+
+  </important>
+  """
+  def create_webhook(client, input, options \\ []) do
+    request(client, "CreateWebhook", input, options)
+  end
+
+  @doc """
   Deletes a build project.
   """
   def delete_project(client, input, options \\ []) do
     request(client, "DeleteProject", input, options)
+  end
+
+  @doc """
+  For an existing AWS CodeBuild build project that has its source code stored
+  in a GitHub repository, stops AWS CodeBuild from automatically rebuilding
+  the source code every time a code change is pushed to the repository.
+  """
+  def delete_webhook(client, input, options \\ []) do
+    request(client, "DeleteWebhook", input, options)
+  end
+
+  @doc """
+  Resets the cache for a project.
+  """
+  def invalidate_project_cache(client, input, options \\ []) do
+    request(client, "InvalidateProjectCache", input, options)
   end
 
   @doc """
@@ -132,6 +191,13 @@ defmodule AWS.CodeBuild do
   """
   def update_project(client, input, options \\ []) do
     request(client, "UpdateProject", input, options)
+  end
+
+  @doc """
+  Updates the webhook associated with an AWS CodeBuild build project.
+  """
+  def update_webhook(client, input, options \\ []) do
+    request(client, "UpdateWebhook", input, options)
   end
 
   @spec request(map(), binary(), map(), list()) ::
